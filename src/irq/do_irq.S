@@ -17,6 +17,7 @@
 .globl vec13; vec13: pushl $13; jmp asm_do_irq
 
 .globl irq0; irq0: pushl $1000; jmp asm_do_irq
+.globl irq1; irq1: pushl $1001; jmp asm_do_irq
 
 .globl irq_empty; irq_empty: pushl $-1; jmp asm_do_irq
 
