@@ -33,10 +33,14 @@ void main_loop(void);
 void initial_game(void);
 bool update_keypress(void);
 
-int win_get(void);
 void win_initial(void);
-bool win_check(void);
-void win_add(void);
+int winp_get(void);
+bool winp_check(void);
+void winp_add(void);
+int winc_get(void);
+bool winc_check(void);
+void winc_add(void);
+bool screen_full(void);
 int get_fps(void);
 void set_fps(int fps);
 

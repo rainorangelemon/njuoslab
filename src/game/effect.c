@@ -5,21 +5,35 @@
 #include "device/video.h"
 #include "x86/x86.h"
 
-static int win;
+static int winp,winc;
+
+static bool has_added;
 
 void win_initial(){
-	win=0;
+	winp=0;
+	winc=0;
+	has_added=0;
 }
 
-void win_add(){
-	win++;
+void winp_add(){
+	winp++;
+	has_added=1;
 }
 
-int win_get(){
-	return win;
+void winc_add(){
+	winc++;
+	has_added=1;
 }
 
-bool win_check(){
+int winc_get(){
+	return winc;
+}
+
+int winp_get(){
+	return winp;
+}
+
+bool winp_check(){
 	if(((box[0].text=='O')&&(box[1].text=='O')&&(box[2].text=='O'))||
 		((box[3].text=='O')&&(box[4].text=='O')&&(box[5].text=='O'))||
 		((box[6].text=='O')&&(box[7].text=='O')&&(box[8].text=='O'))||
@@ -31,6 +45,29 @@ bool win_check(){
 		return TRUE;
 	}else
 		return FALSE;
+}
+
+bool winc_check(){
+	if(((box[0].text=='X')&&(box[1].text=='X')&&(box[2].text=='X'))||
+		((box[3].text=='X')&&(box[4].text=='X')&&(box[5].text=='X'))||
+		((box[6].text=='X')&&(box[7].text=='X')&&(box[8].text=='X'))||
+		((box[0].text=='X')&&(box[4].text=='X')&&(box[8].text=='X'))||
+		((box[2].text=='X')&&(box[4].text=='X')&&(box[6].text=='X'))||
+		((box[0].text=='X')&&(box[3].text=='X')&&(box[6].text=='X'))||
+		((box[1].text=='X')&&(box[4].text=='X')&&(box[7].text=='X'))||
+		((box[2].text=='X')&&(box[5].text=='X')&&(box[8].text=='X'))){
+		return TRUE;
+	}else
+		return FALSE;
+}
+
+bool screen_full(){
+	int i;
+	for(i=0;i<9;i++){
+		if(box[i].text=='\0')
+			return FALSE;
+	}
+	return TRUE;
 }
 
 /* 更新按键 */
@@ -48,7 +85,7 @@ update_keypress(void) {
 			int k;
 			for(k=0;k<9;k++){
 				if (box[k].text=='\0') {
-					box[j].text='X';
+					box[k].text='X';
 					break;
 				}
 			}

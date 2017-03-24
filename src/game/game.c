@@ -53,7 +53,7 @@ void initial_game(){
 }
 
 void reset_game(){
-	win_add();
+	win_initial();
 	int i;
 	for(i=0;i<9;i++){
 		box[i].index=i;

@@ -11,7 +11,7 @@
 
 void
 redraw_screen() {
-	const char *win;
+	const char *winp,*winc;
 	
 	prepare_buffer(); /* 准备缓冲区 */
 
@@ -19,13 +19,14 @@ redraw_screen() {
 	int j;
 	for(j=0;j<9;j++){	
 		if(box[j].text!='\0')
-			draw_character(box[j].text, box[j].x, box[j].y, 15);
+			draw_character(box[j].text, box[j].x, box[j].y, 48);
 	}
 
 	/* 绘制win数、最后一次按键扫描码和fps */
-	draw_string(itoa(last_key_code()), SCR_HEIGHT - 8, 0, 48);
-	win = itoa(win_get());
-	draw_string(win, SCR_HEIGHT - 8, SCR_WIDTH - strlen(win) * 8, 12);
+	winp = itoa(winp_get());
+	draw_string(winp, SCR_HEIGHT - 8, SCR_WIDTH - strlen(winp) * 8, 12);
+	winc = itoa(winc_get());
+	draw_string(winc, SCR_HEIGHT - 8, 0, 12);
 	draw_string(itoa(get_fps()), 0, 0, 14);
 	draw_string("FPS", 0, strlen(itoa(get_fps())) * 8, 14);
 
