@@ -14,23 +14,23 @@ redraw_screen() {
 	prepare_buffer(); /* 准备缓冲区 */
 
 	/* 绘制每个字符 */
-	int counter=0;
 	int j;
 	for(j=0;j<9;j++){	
 		if(box[j].text!='\0'){
 			draw_character(box[j].text, box[j].x, box[j].y, 48);
-			counter++;
 		}
 	}
 	/* 绘制win数、最后一次按键扫描码和fps */
-	printk("%d",winner);
-	draw_string(/*"you win!"*/itoa(winner), SCR_HEIGHT - 8, 0, 48);
+	if(winner==0){
+		draw_string("\0", SCR_HEIGHT - 8, 0, 48);
+		draw_string("\0", SCR_HEIGHT - 8, SCR_WIDTH - 16 * 8, 48);
+	}
 	if((winp_check()==1)&&(winner!=2)){
-		draw_string(/*"you win!"*/itoa(winner), SCR_HEIGHT - 8, 0, 48);
+		draw_string("you win!", SCR_HEIGHT - 8, 0, 48);
 		winner=1;
 	}
 	if((winc_check()==1)&&(winner!=1)){
-		draw_string(/*"computer win!"*/itoa(winner), SCR_HEIGHT - 8, SCR_WIDTH - 16 * 8, 48);
+		draw_string("computer win!", SCR_HEIGHT - 8, SCR_WIDTH - 16 * 8, 48);
 		winner=2;
 	}
 	draw_string(itoa(get_fps()), 0, 0, 14);

@@ -13,11 +13,11 @@
 #ifdef TOOSLOW
 	#define PARTIAL_UPDATE
 	#define INTERLACE
-#else
-#ifdef SLOW
-	#define PARTIAL_UPDATE
+//#else
+//#ifdef SLOW
+//	#define PARTIAL_UPDATE
 #endif
-#endif
+//#endif
 
 uint8_t *vmem = VMEM_ADDR;
 static uint8_t vbuf[SCR_SIZE];
