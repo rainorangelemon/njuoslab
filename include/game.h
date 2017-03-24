@@ -25,21 +25,19 @@ typedef struct fly_t{
 }jkdwiejfrv;
 
 struct fly_t box[10];
-
+int winc,winp;
+bool has_added;
+int winner;
 /* 主循环 */
 void main_loop(void);
 
 /* 游戏逻辑相关 */
 void initial_game(void);
+void reset_game(void);
 bool update_keypress(void);
 
-void win_initial(void);
-int winp_get(void);
-bool winp_check(void);
-void winp_add(void);
-int winc_get(void);
 bool winc_check(void);
-void winc_add(void);
+bool winp_check(void);
 bool screen_full(void);
 int get_fps(void);
 void set_fps(int fps);

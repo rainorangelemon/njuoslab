@@ -25,7 +25,10 @@ get_fps() {
 }
 
 void initial_game(){
-	win_initial();
+	winner=0;
+	winp=0;
+	winc=0;
+	has_added=0;
 	box[0].y=100;
 	box[0].x=60;
 	box[1].y=200;
@@ -53,13 +56,17 @@ void initial_game(){
 }
 
 void reset_game(){
-	win_initial();
+	winner=0;
 	int i;
 	for(i=0;i<9;i++){
 		box[i].index=i;
 		box[i].text='\0';
 	}
+	for(i=0;i<=9;i++){
+		release_key(i);
+	}
 	box[4].text='X';
+	has_added=0;
 }
 
 /* 游戏主循环。
@@ -101,6 +108,10 @@ main_loop(void) {
 		/* 依次模拟已经错过的时钟中断。一次主循环如果执行时间长，期间可能到来多次时钟中断，
 		 * 从而主循环中维护的时钟可能与实际时钟相差较多。为了维持游戏的正常运行，必须补上
 		 * 期间错过的每一帧游戏逻辑。 */
+		if(has_added==1){
+			reset_game();
+		}
+		
 		while (now < target) { 
 			if (now % (HZ / FPS) == 0) {
 				redraw = TRUE;

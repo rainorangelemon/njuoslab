@@ -5,34 +5,6 @@
 #include "device/video.h"
 #include "x86/x86.h"
 
-static int winp,winc;
-
-static bool has_added;
-
-void win_initial(){
-	winp=0;
-	winc=0;
-	has_added=0;
-}
-
-void winp_add(){
-	winp++;
-	has_added=1;
-}
-
-void winc_add(){
-	winc++;
-	has_added=1;
-}
-
-int winc_get(){
-	return winc;
-}
-
-int winp_get(){
-	return winp;
-}
-
 bool winp_check(){
 	if(((box[0].text=='O')&&(box[1].text=='O')&&(box[2].text=='O'))||
 		((box[3].text=='O')&&(box[4].text=='O')&&(box[5].text=='O'))||
@@ -73,7 +45,7 @@ bool screen_full(){
 /* 更新按键 */
 bool
 update_keypress(void) {
-	int target=0;
+	int target=-1;
 	
 	disable_interrupt();
 	/* 寻找相应键已被按下、最底部且未被击中的字符 */
@@ -83,8 +55,9 @@ update_keypress(void) {
 			box[j].text='O';
 			target=j+1;
 			int k;
-			for(k=0;k<9;k++){
-				if (box[k].text=='\0') {
+			while(1){
+				k=rand()%9;
+				if (box[k].text=='\0'){
 					box[k].text='X';
 					break;
 				}
@@ -92,8 +65,15 @@ update_keypress(void) {
 			break;
 		}
 	}
+	
+	if(query_key(9)==1){
+		has_added=1;
+		reset_game();
+		return TRUE;		
+	}
+
 	/* 如果找到则更新相应数据 */
-	if (target != 0) {
+	if ((target != -1)&&(target!=9)) {
 		release_key(box[j].index);
 		return TRUE;
 	}
