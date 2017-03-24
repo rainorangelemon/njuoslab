@@ -17,26 +17,28 @@ void release_key(int ch);
 bool query_key(int ch);
 int last_key_code(void);
 
-/* 定义fly_t链表 */
-LINKLIST_DEF(fly)
-	float x, y;
-	int text;
-	float v;
-LINKLIST_DEF_FI(fly)
+/* 定义fly_t array */
+typedef struct fly_t{
+	float x,y;
+	char text;
+	int index;
+}jkdwiejfrv;
+
+struct fly_t box[10];
 
 /* 主循环 */
 void main_loop(void);
 
 /* 游戏逻辑相关 */
-void create_new_letter(void);
-void update_letter_pos(void);
+void initial_game(void);
 bool update_keypress(void);
 
-int get_hit(void);
-int get_miss(void);
+int win_get(void);
+void win_initial(void);
+bool win_check(void);
+void win_add(void);
 int get_fps(void);
 void set_fps(int fps);
-fly_t characters(void);
 
 void redraw_screen(void);
 

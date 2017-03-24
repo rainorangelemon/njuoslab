@@ -63,7 +63,7 @@ display_buffer(void) {
 #endif
 }
 
-static inline void
+void
 draw_character(char ch, int x, int y, int color) {
 	int i, j;
 	assert((ch & 0x80) == 0);

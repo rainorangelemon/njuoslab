@@ -21,5 +21,6 @@ draw_pixel(int x, int y, int color) {
 void prepare_buffer(void);
 void display_buffer(void);
 
+void draw_character(char,int,int,int);
 void draw_string(const char*, int, int, int);
 #endif

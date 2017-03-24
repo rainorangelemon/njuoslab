@@ -5,81 +5,59 @@
 #include "device/video.h"
 #include "x86/x86.h"
 
-LINKLIST_IMPL(fly, 10000)
+static int win;
 
-static fly_t head = NULL;
-static int hit = 0, miss = 0;
-
-int
-get_hit(void) {
-	return hit;
+void win_initial(){
+	win=0;
 }
 
-int
-get_miss(void) {
-	return miss;
+void win_add(){
+	win++;
 }
 
-fly_t
-characters(void) {
-	return head;
+int win_get(){
+	return win;
 }
 
-/* 在屏幕上创建一个新的字母 */
-void
-create_new_letter(void) {
-	if (head == NULL) {
-		head = fly_new(); /* 当前没有任何字母，创建新链表 */
-	} else {
-		fly_t now = fly_new();
-		fly_insert(NULL, head, now); /* 插入到链表的头部 */
-		head = now;
-	}
-	/* 字母、初始位置、掉落速度均为随机设定 */
-	head->x = 0;
-	head->y = rand() % (SCR_WIDTH / 8 - 2) * 8 + 8;
-	head->v = (rand() % 1000 / 1000.0 + 1) / 2.0;
-	head->text = rand() % 26;
-	release_key(head->text); /* 清除过往的按键 */
-}
-
-/* 逻辑时钟前进1单位 */
-void
-update_letter_pos(void) {
-	fly_t it;
-	for (it = head; it != NULL; ) {
-		fly_t next = it->_next;
-		it->x += it->v; /* 根据速度更新位置 */
-		if (it->x < 0 || it->x + 7.9 > SCR_HEIGHT) {
-			if (it->x < 0) hit ++; /* 从上部飞出屏幕 */
-			else miss ++; /* 从下部飞出屏幕 */
-			fly_remove(it);
-			fly_free(it);
-			if (it == head) head = next; /* 更新链表 */
-		}
-		it = next;
-	}
+bool win_check(){
+	if(((box[0].text=='O')&&(box[1].text=='O')&&(box[2].text=='O'))||
+		((box[3].text=='O')&&(box[4].text=='O')&&(box[5].text=='O'))||
+		((box[6].text=='O')&&(box[7].text=='O')&&(box[8].text=='O'))||
+		((box[0].text=='O')&&(box[4].text=='O')&&(box[8].text=='O'))||
+		((box[2].text=='O')&&(box[4].text=='O')&&(box[6].text=='O'))||
+		((box[0].text=='O')&&(box[3].text=='O')&&(box[6].text=='O'))||
+		((box[1].text=='O')&&(box[4].text=='O')&&(box[7].text=='O'))||
+		((box[2].text=='O')&&(box[5].text=='O')&&(box[8].text=='O'))){
+		return TRUE;
+	}else
+		return FALSE;
 }
 
 /* 更新按键 */
 bool
 update_keypress(void) {
-	fly_t it, target = NULL;
-	float min = -100;
-
+	int target=0;
+	
 	disable_interrupt();
 	/* 寻找相应键已被按下、最底部且未被击中的字符 */
-	for (it = head; it != NULL; it = it->_next) {
-		assert(it->text >= 0 && it->text < 26);
-		if (it->v > 0 && it->x > min && query_key(it->text)) {
-			min = it->x;
-			target = it;
+	int j;
+	for (j = 0; j < 9; j++) {
+		if ((box[j].text=='\0')&&(query_key(box[j].index))) {
+			box[j].text='O';
+			target=j+1;
+			int k;
+			for(k=0;k<9;k++){
+				if (box[k].text=='\0') {
+					box[j].text='X';
+					break;
+				}
+			}
+			break;
 		}
 	}
 	/* 如果找到则更新相应数据 */
-	if (target != NULL) {
-		release_key(target->text);
-		target->v = -3; /* 速度改为向上 */
+	if (target != 0) {
+		release_key(box[j].index);
 		return TRUE;
 	}
 	enable_interrupt();
