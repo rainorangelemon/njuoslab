@@ -10,6 +10,7 @@ void
 init_intr(void) {
 	out_byte(PORT_PIC_MASTER + 1, 0xFF);
 	out_byte(PORT_PIC_SLAVE + 1 , 0xFF);
+	
 	out_byte(PORT_PIC_MASTER, 0x11);
 	out_byte(PORT_PIC_MASTER + 1, 32);
 	out_byte(PORT_PIC_MASTER + 1, 1 << 2);
