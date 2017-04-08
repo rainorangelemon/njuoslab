@@ -45,31 +45,31 @@ int main(void) {
 
 	//sti(); hlt(); cli(); while(1);
 
-	struct Elf *elf;
-	struct Proghdr *ph, *eph;
+	struct ELFHeader *elf;
+	struct ProgramHeader *ph, *eph;
 	unsigned char *pa, *i;
 
-	//elf = (struct Elf*)0x1f00000;
+	//elf = (struct ElfHeader*)0x1f00000;
 	uint8_t buf[4096];
-	elf = (struct Elf*)buf;
+	elf = (struct ELFHeader*)buf;
 	printk("addr of buf: 0x%x\n", (uint32_t)buf);
 
 	readseg((unsigned char*)elf, 4096, GAME_OFFSET_IN_DISK);
 
-	ph = (struct Proghdr*)((char *)elf + elf->e_phoff);
-	eph = ph + elf->e_phnum;
+	ph = (struct ProgramHeader*)((char *)elf + elf->phoff);
+	eph = ph + elf->phnum;
 	for(; ph < eph; ph ++) {
-		pa = (unsigned char*)ph->p_pa;
-		printk("0x%x, 0x%x, 0x%x\n", pa, ph->p_filesz, ph->p_memsz);
-		readseg(pa, ph->p_filesz, GAME_OFFSET_IN_DISK + ph->p_offset);
-		for(i = pa + ph->p_filesz; i < pa + ph->p_memsz; *i ++ = 0);
+		pa = (unsigned char*)ph->paddr;
+		printk("0x%x, 0x%x, 0x%x\n", pa, ph->filesz, ph->memsz);
+		readseg(pa, ph->filesz, GAME_OFFSET_IN_DISK + ph->off);
+		for(i = pa + ph->filesz; i < pa + ph->memsz; *i ++ = 0);
 	}
 
 	printk("here we would go!\n");
 
 	//sti(); hlt(); cli(); while(1);
 
-	((void(*)(void))elf->e_entry)(); /* Here we go! */
+	((void(*)(void))elf->entry)(); /* Here we go! */
 
 	while(1);
 

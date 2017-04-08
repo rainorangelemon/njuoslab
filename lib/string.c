@@ -8,6 +8,15 @@
 // Primespipe runs 3x faster this way.
 #define ASM 1
 
+char *itoa(int a){
+	static char buf[30];
+	char *p=buf+sizeof(buf)-1;
+	do{
+		*--p='0'+a%10;
+	}while(a/=10);
+	return p;
+}
+
 int
 strlen(const char *s)
 {

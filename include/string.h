@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+char *  itoa(int a);
+
 int	strlen(const char *s);
 int	strnlen(const char *s, size_t size);
 char *	strcpy(char *dst, const char *src);

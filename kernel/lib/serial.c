@@ -1,25 +1,29 @@
-#include "x86/io.h"
+#include "x86.h"
 
-#define SERIAL_PORT  0x3F8
+#define PORT 0x3f8   /* COM1 */
 
-void
-init_serial(void) {
-	out_byte(SERIAL_PORT + 1, 0x00);
-	out_byte(SERIAL_PORT + 3, 0x80);
-	out_byte(SERIAL_PORT + 0, 0x01);
-	out_byte(SERIAL_PORT + 1, 0x00);
-	out_byte(SERIAL_PORT + 3, 0x03);
-	out_byte(SERIAL_PORT + 2, 0xC7);
-	out_byte(SERIAL_PORT + 4, 0x0B);
+
+void init_serial() {
+	outb(PORT + 1, 0x00);
+	outb(PORT + 3, 0x80);
+	outb(PORT + 0, 0x03);
+	outb(PORT + 1, 0x00);
+	outb(PORT + 3, 0x03);
+	outb(PORT + 2, 0xC7);
+	outb(PORT + 4, 0x0B);
 }
 
-static inline int
-serial_idle(void) {
-	return (in_byte(SERIAL_PORT + 5) & 0x20) != 0;
+int is_serial_idle() {
+	return inb(PORT + 5) & 0x20;
 }
 
-void
-serial_printc(char ch) {
-	while (serial_idle() != TRUE);
-	out_byte(SERIAL_PORT, ch);
+void serial_printc(char a){
+	while(!is_serial_idle());
+	outb(PORT, a);
+}
+
+void serial_output_test(){
+	outb(PORT + 0, 'Y');
+	outb(PORT + 0, 'C');
+	outb(PORT + 0, 'N');
 }

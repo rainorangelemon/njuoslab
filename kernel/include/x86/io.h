@@ -1,7 +1,7 @@
 #ifndef __X86_IO_H__
 #define __X86_IO_H__
 
-#include "game.h"
+#include "common.h"
 
 /* 读I/O端口 */
 static inline uint8_t
