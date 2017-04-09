@@ -42,13 +42,13 @@
 #define PGADDR(d, t, o)	((void*) ((d) << PDXSHIFT | (t) << PTXSHIFT | (o)))
 
 // Page directory and page table constants.
-#define NPDENTRIES	1024		// page directory entries per page directory
-#define NPTENTRIES	1024		// page table entries per page table
+#define NR_PDE	1024		// page directory entries per page directory
+#define NR_PTE	1024		// page table entries per page table
 
 #define PGSIZE		4096		// bytes mapped by a page
 #define PGSHIFT		12		// log2(PGSIZE)
 
-#define PTSIZE		(PGSIZE*NPTENTRIES) // bytes mapped by a page directory entry
+#define PTSIZE		(PGSIZE*NR_PTE) // bytes mapped by a page directory entry
 #define PTSHIFT		22		// log2(PTSIZE)
 
 #define PTXSHIFT	12		// offset of PTX in a linear address
@@ -74,6 +74,7 @@
 
 // Address in page table or page directory entry
 #define PTE_ADDR(pte)	((physaddr_t) (pte) & ~0xFFF)
+#define PDE_ADDR(pde)   ((physaddr_t) (pde) & ~0x3FFFFF)
 
 // Control Register flags
 #define CR0_PE		0x00000001	// Protection Enable
@@ -123,28 +124,6 @@
 #define FEC_PR		0x1	// Page fault caused by protection violation
 #define FEC_WR		0x2	// Page fault caused by a write
 #define FEC_U		0x4	// Page fault occured while in user mode
-
-// Segment related --ANDSORA
-#define SEG_CODEDATA            1
-#define SEG_32BIT               1
-#define SEG_4KB_GRANULARITY     1
-#define SEG_TSS_32BIT           0x9
-
-#define DPL_KERNEL              0
-#define DPL_USER                3
-
-#define SEG_WRITABLE            0x2
-#define SEG_READABLE            0x2
-#define SEG_EXECUTABLE          0x8
-
-#define NR_SEGMENTS             3
-#define SEG_KERNEL_NULL         0 
-#define SEG_KERNEL_CODE         1 
-#define SEG_KERNEL_DATA         2
-
-#define SELECTOR_KERNEL(s)		( (s << 3) | DPL_KERNEL )
-#define SELECTOR_USER(s)		( (s << 3) | DPL_USER )
-
 
 /*
  *
@@ -224,6 +203,19 @@ typedef struct SegmentDescriptor {
 #define STS_CG32	0xC	    // 32-bit Call Gate
 #define STS_IG32	0xE	    // 32-bit Interrupt Gate
 #define STS_TG32	0xF	    // 32-bit Trap Gate
+
+#define DPL_KERNEL 0
+#define DPL_USER   3
+#define NR_SEGMENTS 8
+#define SEG_KERNEL_CODE 1
+#define SEG_KERNEL_DATA 2
+#define SEG_USER_CODE   3
+#define SEG_USER_DATA   4
+#define SEG_TSS         5
+
+#define SELECTOR_KERNEL(s) (((s)<<3)|DPL_KERNEL)
+#define SELECTOR_USER(s) (((s)<<3)|DPL_USER)
+#define SELECTOR_INDEX(s) (((s)<<3)-4)
 
 
 /*

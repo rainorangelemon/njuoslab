@@ -3,11 +3,17 @@
 #include "x86.h"
 #include "elf.h"
 #include "string.h"
+#include "memory.h"
+#include "irq.h"
+#include "x86/memory.h"
+
 
 #define SECTSIZE 512
 #define GAME_OFFSET_IN_DISK (10 * 1024 * 1024)
 void readseg(unsigned char*,int,int);
 
+void init_page();
+void init_segment();
 void init_vmem_addr();
 void init_serial();
 void init_i8259();
@@ -20,13 +26,27 @@ void keyboard_event();
 void printk_test();
 void serial_output_test();
 
+PCB* create_process(uint32_t disk_offset);
+void set_trapframe(TrapFrame4p*,uint32_t);
+
+int main(void);
+void init(){
+	init_page();
+	asm volatile("addl %0,%%esp" : : "i"(KOFFSET));
+	asm volatile("jmp *%0" : : "r"(main));
+	panic("wrong in the initi()");
+}
+
 void INIT_WORK(){
+	init_segment();
 	init_vmem_addr();
+	init_vmem();
+	init_pcb();
+	init_pte_info();
 	init_serial();
 	init_i8259();
 	init_idt();
 	init_timer();
-	init_vmem();
 	add_irq_handle(0, timer_event);
 	add_irq_handle(1, keyboard_event);
 }
@@ -44,7 +64,7 @@ int main(void) {
 	printk("Here is main()\n");
 
 	//sti(); hlt(); cli(); while(1);
-
+	/*
 	struct ELFHeader *elf;
 	struct ProgramHeader *ph, *eph;
 	unsigned char *pa, *i;
@@ -64,26 +84,35 @@ int main(void) {
 		readseg(pa, ph->filesz, GAME_OFFSET_IN_DISK + ph->off);
 		for(i = pa + ph->filesz; i < pa + ph->memsz; *i ++ = 0);
 	}
-
+	*/
+	PCB *pcb_p=create_process(GAME_OFFSET_IN_DISK);
+	set_trapframe((void*)pcb_p->kstack,pcb_p->entry);
 	printk("here we would go!\n");
 
+	asm volatile("movl %0, %%esp" : :"a"(pcb_p->kstack));
+	asm volatile("popal;\
+			pushl %eax;\
+			movw 4(%esp),%ax;\
+			movw %ax,%gs;\
+			movw %ax,%fs;\
+			movw %ax,%es;\
+			movw %ax,%ds;\
+			popl %eax;\
+			addl $0x18,%esp;\
+			iret");
+
 	//sti(); hlt(); cli(); while(1);
-
-	((void(*)(void))elf->entry)(); /* Here we go! */
-
-	while(1);
 
 	panic("YOU shouldn't get here!\n");
 	return 0;
 }
 
-
+/*
 void waitdisk(void) {
 	while((inb(0x1f7) & 0xc0) != 0x40);
 }
 
 void readsect(void *dst, int offset) {
-	/* int i; */
 	waitdisk();
 
 	outb(0x1f2, 1);		// count = 1
@@ -96,10 +125,6 @@ void readsect(void *dst, int offset) {
 	waitdisk();
 
 	insl(0x1f0, dst, SECTSIZE/4);	//read a sector
-	/*	this part does the same thing
-	for(i = 0; i < SECTSIZE / 4; i ++) {
-		((int *)dst)[i] = in_long(0x1f0);
-	} */
 }
 
 void readseg(unsigned char *pa, int count, int offset) {
@@ -110,3 +135,4 @@ void readseg(unsigned char *pa, int count, int offset) {
 	for(; pa < epa; pa += SECTSIZE, offset ++)
 		readsect(pa, offset);
 }
+*/

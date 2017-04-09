@@ -1,3 +1,5 @@
+#include "mmu.h"
+
 #----|-----entry------|-errorcode-|-----id-----|---handler---|
 .globl vec0;    vec0:   pushl $0;  pushl    $0; jmp asm_do_irq
 .globl vec1;    vec1:   pushl $0;  pushl    $1; jmp asm_do_irq
@@ -30,12 +32,40 @@
 # You should make yourself understand it clearly.
 
 asm_do_irq:
+	cli
+	pushl	%ds
+	pushl	%es
+	pushl	%fs
+	pushl	%gs
+
+	pushl	%eax
+	movw	$SELECTOR_KERNEL(SEG_KERNEL_DATA),%ax
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
+	popl	%eax
+
 	pushal
 
 	pushl %esp		# ???
+	
+	sti
 	call irq_handle
+	cli
 	
 	addl $4, %esp
 	popal
-	addl $8, %esp
+	
+	pushl %eax
+	movw  4(%esp),%ax
+	movw  %ax,%gs
+	movw  %ax,%fs
+	movw  %ax,%es
+	movw  %ax,%ds
+	popl  %eax
+
+	addl $0x18, %esp
+	sti
+
 	iret

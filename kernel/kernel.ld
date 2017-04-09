@@ -4,14 +4,14 @@ OUTPUT_FORMAT(
 	"elf32-i386"   /* Little endian */
 )
 OUTPUT_ARCH(i386)
-ENTRY(main)  /* 入口函数，你可以不定义成 main，只要是代码中的符号即可 */
+ENTRY(_start)  /* 入口函数，你可以不定义成 main，只要是代码中的符号即可 */
 
 SECTIONS
 {
 	/**
 	 * 可执行程序的地址空间从 1MB (2^20 B) 往上开始
 	 */
-	. = 0x100000;
+	. = 0xC0100000;
 
 	PROVIDE(start = .);
 

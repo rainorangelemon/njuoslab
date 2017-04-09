@@ -9,7 +9,7 @@ int fs_write(int,void*,int);
 int handle_keys();
 int load_vmem(uint8_t*);
 
-void do_syscall(struct TrapFrame *tf){
+void do_syscall(struct TrapFrame4p *tf){
 	switch(tf->eax){
 		case SYS_write:tf->eax=fs_write(tf->ebx,(void*)tf->ecx,tf->edx);break;
 		case SYS_time: tf->eax=time_tick;break;
