@@ -1,12 +1,10 @@
-#include "device/video_mode.h"
 #include "string.h"
 #include "device/video.h"
 
 uint8_t *vmem;
 
 void init_vmem_addr() {
-	struct ModeInfoBlock *MIB = (struct ModeInfoBlock *)(0x7e00);
-	vmem = (uint8_t *)MIB->physbase;
+	vmem=((uint8_t*)0xFD000000);
 }
 
 void init_vmem() {
