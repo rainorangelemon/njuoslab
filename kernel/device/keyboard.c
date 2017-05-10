@@ -11,8 +11,6 @@ static const int keycode_array[] = {
 	K_UP_1, K_UP_2, K_UP_3, K_UP_4, K_UP_5, K_UP_6, K_UP_7, K_UP_8, K_UP_9, K_ENTER
 };
 
-//static const char *keyboard_string[] = {"UP", "DOWN", "LEFT", "RIGHT", "Z", "ENTER"};
-
 static int key_state[NR_KEYS];
 
 void keyboard_event(void) {

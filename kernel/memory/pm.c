@@ -11,17 +11,6 @@
 #define SECTSIZE 512
 #define GAME_OFFSET_IN_DISK (10 * 1024 * 1024)
 
-/*
-typedef struct PCB {
-	int PID;
-	int _free_pte;
-	uint32_t entry;
-	CR3 ucr3;
-	PDE updir[NR_PDE] align_to_page;
-	PTE uptable[3][NR_PTE] align_to_page;
-	uint8_t kstack[4096];
-} PCB; */
-
 bool pcb_present[NR_PCB];
 static PCB pcb[NR_PCB];
 
@@ -39,17 +28,17 @@ void init_pcb(void) {
 		pcb[i]._free_pte = 0;
 		pcb[i].entry = 0;
 
-		/* initialize the ucr3 */
+		/* Initial the ucr3 */
 		pcb[i].ucr3.val = 0;
 		pcb[i].ucr3.page_directory_base = va_to_pa(pcb[i].updir) >> 12;
 
-		/* initialize the uPDE */
+		/* Initial the uPDE */
 		PDE *kpdir = get_kpdir();
 		memset(pcb[i].updir, 0, NR_PDE * sizeof(PDE));
 		memcpy(&pcb[i].updir[KOFFSET / PTSIZE], &kpdir[KOFFSET / PTSIZE], (PHY_MEM / PTSIZE) * sizeof(PDE));
 		pcb[i].updir[PDX(VMEM_ADDR)].val = kpdir[PDX(VMEM_ADDR)].val;
 
-		/* initialize the uPTE */
+		/* Initial the uPTE */
 		memset(pcb[i].uptable, 0, 3 * NR_PTE * sizeof(PTE));
 	}
 	printk("PDX(VMEM_ADDR) = 0x%x, pdir = 0x%x\n", PDX(VMEM_ADDR), pcb[0].updir[PDX(VMEM_ADDR)].val);
@@ -58,10 +47,11 @@ void init_pcb(void) {
 
 int get_pcb() {
 	int i;
-	for(i=0; i<NR_PCB; ++i) if(!pcb_present[i]) {
-		pcb_present[i] = true;
-		return i;
-	}
+	for(i=0; i<NR_PCB; ++i) 
+		if(!pcb_present[i]) {
+			pcb_present[i] = true;
+			return i;
+		}
 	return -1;
 }
 

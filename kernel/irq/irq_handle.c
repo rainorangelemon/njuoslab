@@ -37,10 +37,10 @@ void irq_handle(struct TrapFrame4p *tf) {
 		switch(irq){ 
 			case 0: printk("Divide Error!\n"); break;
 			case 1: printk("Debug Exceptions!\n"); break;
-			case 3: printk("Breakpoint!\n"); break;
-			case 4: printk("Overflow!\n"); break;
-			case 5: printk("Bounds Check!\n"); break;
-			case 6: printk("Invalid Opcode!\n"); break;
+			case 3: printk("Breakpoint Error!\n"); break;
+			case 4: printk("Overflow Error!\n"); break;
+			case 5: printk("Bounds Check Error!\n"); break;
+			case 6: printk("Invalid Opcode Error!\n"); break;
 			case 7: printk("Coprocessor Not Available!\n"); break;
 			case 8: printk("Double Fault!\n"); break;
 			case 9: printk("Coprocessor Segment Overrun!\n"); break;
@@ -49,9 +49,9 @@ void irq_handle(struct TrapFrame4p *tf) {
 			case 12: printk("Stack Exception!\n"); break;
 			case 13: printk("General Protection Exception!\n"); break;
 			case 14: {
-						 printk("Page Fault!\n");
+						 printk("Fault in Page!\n");
 						 if((tf->err & 0x1) == 0) 
-							printk("The page is not present!\n");
+							printk("The page does not present!\n");
 						 else{
 							 if(tf->err & 0x2) printk("The access causing the fault was a write.\n");
 							 else printk("The access causing the fault was a read.\n");
@@ -60,7 +60,7 @@ void irq_handle(struct TrapFrame4p *tf) {
 						 }
 						 break;
 			}
-			default: printk("Unhandled exception!\n"); break;
+			default: printk("Unexisted exception!\n"); break;
 		}
 		panic("Unhandled exception! irq==%d,error_code=0x%x\n", irq, tf->err);
 	}else {

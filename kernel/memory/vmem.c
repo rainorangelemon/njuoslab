@@ -14,7 +14,7 @@ void init_vmem(){
 	PTE* ptable=(PTE*)((uint32_t)uptable+4*((VMEM_ADDR>>12)&0x3ff));
 	pdir->val=PTE_ADDR(va_to_pa(uptable))|PTE_P|PTE_W|PTE_U;
 	uint32_t pframe_addr=VMEM_ADDR;
-	for(;pframe_addr<VMEM_ADDR+SCR_SIZE;pframe_addr+=PGSIZE){
+	for(;pframe_addr<VMEM_ADDR+SCR_SIZE;pframe_addr=pframe_addr+PGSIZE){
 		ptable->val=PTE_ADDR(pframe_addr)|PTE_P|PTE_W|PTE_U;
 		ptable++;
 	}

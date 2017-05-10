@@ -11,20 +11,18 @@ static PTE kptable[PHY_MEM / PGSIZE] align_to_page;
 
 PDE* get_kpdir() { return kpdir; }
 
-/* set up page tables for kernel */
+/* set up ptables for kernel */
 void init_page(void) {
 	CR0 cr0;
 	CR3 cr3;
 	PDE *pdir = (PDE *)va_to_pa(kpdir);
 	PTE *ptable = (PTE *)va_to_pa(kptable);
 	uint32_t pdir_idx;
-
-	//if((uint32_t)pdir == (uint32_t)kpdir) while(1);
-
-	/* make all PDEs invalid */
+	
+	/* let all PDEs invalid */
 	memset(pdir, 0, NR_PDE * sizeof(PDE));
 
-	/* fill PDEs */
+	/* Fill all the pde */
 	for(pdir_idx = 0; pdir_idx < PHY_MEM / PTSIZE; pdir_idx ++) {
 		pdir[pdir_idx].val = PTE_ADDR(ptable) | PTE_P | PTE_W;
 		pdir[pdir_idx + KOFFSET / PTSIZE].val = PTE_ADDR(ptable) | PTE_P | PTE_W;
@@ -39,18 +37,16 @@ void init_page(void) {
 			   jge 1b" : :
 			   "i"(PGSIZE), "a"((PHY_MEM - PGSIZE) | PTE_P | PTE_W), "D"(ptable - 1));
 
-	/* make CR3 to be the entry of page directory */
+	/* cr3 is the entry of page directory */
 	cr3.val = 0;
 	cr3.page_directory_base = ((uint32_t)pdir) >> 12;
 	lcr3(cr3.val);
 
-	//while(1);
 	/* set PG bit in CR0 to enable paging */
 	cr0.val = rcr0();
 	cr0.paging = 1;
 	lcr0(cr0.val);
 
-	//while(1);
 }
 
 
@@ -77,8 +73,7 @@ static void set_tss(Segdesc *ptr) {
 
 static Segdesc gdt[NR_SEGMENTS];
 
-static void
-set_segment(Segdesc *ptr, uint32_t pl, uint32_t type) {
+static void set_segment(Segdesc *ptr, uint32_t pl, uint32_t type) {
 	ptr->sd_lim_15_0  = 0xFFFF;
 	ptr->sd_base_15_0   = 0x0;
 	ptr->sd_base_23_16  = 0x0;

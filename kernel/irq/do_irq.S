@@ -29,7 +29,7 @@
 .extern irq_handle
 
 # The follow code is *VERY* important for interrupts and exceptions handling.
-# You should make yourself understand it clearly.
+# I should make myself understand it clearly.
 
 asm_do_irq:
 	cli
@@ -45,18 +45,13 @@ asm_do_irq:
 	movw	%ax,%fs
 	movw	%ax,%gs
 	popl	%eax
-
 	pushal
-
 	pushl %esp		# ???
-	
 	sti
 	call irq_handle
 	cli
-	
 	addl $4, %esp
 	popal
-	
 	pushl %eax
 	movw  4(%esp),%ax
 	movw  %ax,%gs
