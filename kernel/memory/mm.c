@@ -56,3 +56,18 @@ void free_pte(int pte_idx){
 	temp->next=_free_pte;
 	_free_pte=temp;
 }
+
+int find_pte(int address){
+	int index=0;
+	for(index=0;index<NR_PHY_PTE;index++){
+		if((address>=pte_info[index].physbase)&&(address<pte_info[index].physbase+PTSIZE)){
+			return index;
+		}
+	}
+	panic("find_pte: YOU should find one pte!\n");
+	return 0;
+}
+
+void free_address(int address){
+	free_pte(find_pte(address));
+}

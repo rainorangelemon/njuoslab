@@ -85,6 +85,8 @@ int main(void) {
 		for(i = pa + ph->filesz; i < pa + ph->memsz; *i ++ = 0);
 	}
 	*/
+	
+	current_pid=-1;
 	PCB *pcb_p=create_process(GAME_OFFSET_IN_DISK);
 	set_trapframe((void*)pcb_p->kstack,pcb_p->entry);
 	printk("here we would go!\n");

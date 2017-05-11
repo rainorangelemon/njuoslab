@@ -3,6 +3,9 @@
 
 #include "common.h"
 #include "mmu.h"
+#include "x86/memory.h"
+#include "x86/x86.h"
+
 
 #define align_to_page __attribute((aligned(PGSIZE)))
 
@@ -79,6 +82,13 @@ typedef union CR3{
 	uint32_t val;
 }CR3;
 
+enum{
+	FREE=0,
+	RUNNABLE,
+	RUNNING,
+	SLEEP
+};
+
 typedef struct PCB{
 	int PID;
 	int _free_pte;
@@ -87,13 +97,31 @@ typedef struct PCB{
 	PDE updir[NR_PDE] align_to_page;
 	PTE uptable[3][NR_PTE] align_to_page;
 	uint8_t kstack[4096];
+	unsigned int status;
+	uint32_t sleep_time;
 }PCB;
+
+#define NR_PCB 16
+#define SCR_KSTACK 4096
+
+#define SECTSIZE 512
+#define GAME_OFFSET_IN_DISK (10 * 1024 * 1024)
+
+bool pcb_present[NR_PCB];
+PCB pcb[NR_PCB];
+
+int current_pid;
 
 void init_pte_info();
 uint32_t get_pte();
 void free_pte(int);
+void free_address(int);
 
+int get_pcb();
 void init_pcb();
 PCB* create_process(uint32_t);
+void destroy_process(int pid);
+void pop_tf_process(TrapFrame4p *tf);
+void run_process(int);
 
 #endif

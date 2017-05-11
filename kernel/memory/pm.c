@@ -4,15 +4,7 @@
 #include "mmu.h"
 #include "x86.h"
 #include "elf.h"
-
-#define NR_PCB 16
-#define SCR_KSTACK 4096
-
-#define SECTSIZE 512
-#define GAME_OFFSET_IN_DISK (10 * 1024 * 1024)
-
-bool pcb_present[NR_PCB];
-static PCB pcb[NR_PCB];
+#include "x86/memory.h"
 
 PCB* create_process(uint32_t);
 PDE* get_kpdir();
@@ -27,6 +19,7 @@ void init_pcb(void) {
 		pcb[i].PID = i;
 		pcb[i]._free_pte = 0;
 		pcb[i].entry = 0;
+		pcb[i].status=FREE;
 
 		/* Initial the ucr3 */
 		pcb[i].ucr3.val = 0;
@@ -136,6 +129,7 @@ PCB* create_process(uint32_t disk_offset) {
 	lcr3(pcb[pcb_idx].ucr3.val);
 	printk("(create_process) about to leave\n"); //while(1);
 	pcb[pcb_idx].entry = elf->entry;
+	pcb[pcb_idx].status=RUNNABLE;
 	return &pcb[pcb_idx];
 }
 
@@ -201,4 +195,54 @@ void readseg(unsigned char *pa, int count, int offset) {
 	offset = (offset / SECTSIZE) + 1;
 	for(; pa < epa; pa += SECTSIZE, offset ++)
 		readsect(pa, offset);
+}
+
+void free_process(int pid){
+	if(pid==current_pid){
+		lcr3(pcb[pid].ucr3.val);
+	}
+	PCB *pcb_p=&pcb[pid];
+	PTE *uptable_p=pcb_p->uptable[0];
+	int i,j;
+	for(i=0;i<pcb_p->_free_pte;i++){
+		uptable_p=pcb_p->uptable[i];
+		for(j=0;j<NR_PTE;j++){
+			int address=(uptable_p->val)&0x000;
+			free_address(address);
+			uptable_p++;
+		}
+	}
+	pcb_present[pid]=0;
+	pcb[pid].status=FREE;
+}
+
+void destroy_process(int pid){
+	free_process(pid);
+}
+
+void pop_tf_process(TrapFrame4p *tf){
+	asm volatile("movl %0, %%esp": :"a"(tf));
+	asm volatile("popal;\
+			pushl %eax;\
+			movw 4(%esp), %ax;\
+			movw %ax,%gs;\
+			movw %ax,%fs;\
+			movw %ax,%es;\
+			movw %ax,%ds;\
+			popl %eax;\
+			addl $0x18, %esp;\
+			iret");
+}
+
+void run_process(int pid){
+	if(pid==-1){
+		printk("no such process");
+		while(1);
+	}
+	if(current_pid!=pid){
+		current_pid=pid;
+		pcb[pid].status=RUNNING;
+		lcr3(pcb[pid].ucr3.val);
+	}
+	pop_tf_process((void*)pcb[pid].kstack);
 }
