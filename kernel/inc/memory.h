@@ -118,6 +118,7 @@ uint32_t get_pte();
 void free_pte(int);
 void free_address(int);
 uint32_t page_trans(int,uint32_t);
+void print_mem(int);
 
 int get_pcb();
 void init_pcb();

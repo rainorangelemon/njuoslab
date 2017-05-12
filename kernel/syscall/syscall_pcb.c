@@ -77,9 +77,9 @@ int system_fork(){
 			uint32_t physbase=get_pte();
 			uint32_t temp=physbase;
 			PTE* uptable_p=pcb[new_id].uptable[has_find];
-			pcb[new_id].updir[i].val=va_to_pa(uptable_p)|PTE_P|PTE_W|PTE_U;
+			pcb[new_id].updir[i].val=va_to_pa(uptable_p)|(pcb[current_pid].updir[i].val&0xFFF);
 			for(j=0;j<NR_PTE;j++){
-				uptable_p->val=physbase|PTE_P|PTE_W|PTE_U;
+				uptable_p->val=physbase|(pcb[current_pid].uptable[has_find][0].val&0xFFF);
 				uptable_p++;
 				physbase+=PGSIZE;
 			}
@@ -92,8 +92,8 @@ int system_fork(){
 			PDE* updir_old=&pcb[current_pid].updir[i];
 			PTE* uptable_new=(PTE*)pa_to_va(updir_new->page_frame<<PGSHIFT);
 			PTE* uptable_old=(PTE*)pa_to_va(updir_old->page_frame<<PGSHIFT);
-			printk("uptable_address:0x%x\n",(void*)uptable_old);
-			printk("old_uptable_address:0x%x\n",(void*)uptable_new);
+			printk("old_uptable_address:0x%x\n",(void*)uptable_old);
+			printk("new_uptable_address:0x%x\n",(void*)uptable_new);
 			for(j=0;j<NR_PTE;j++){
 				uint32_t new_phys_addr=uptable_new->page_frame<<PGSHIFT;
 				uint32_t old_phys_addr=uptable_old->page_frame<<PGSHIFT;

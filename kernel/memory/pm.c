@@ -62,7 +62,7 @@ void print_mem(int idx){
 	printk("uptable[2]:0x%x\n",(void*)pcb[idx].uptable[2]);
 	for(i=0;i<NR_PDE;i++){
 		if(pcb[idx].updir[i].present){
-			printk("idx_updir:0x%x, uptable_address:0x%x\n",i,pcb[idx].updir[i].page_frame<<PGSHIFT);
+			printk("idx_updir:0x%x, uptable_address:0x%x, physbase:0x%x\n",i,pcb[idx].updir[i].page_frame<<PGSHIFT,((PTE*)pa_to_va(pcb[idx].updir[i].page_frame<<PGSHIFT))->val);
 		}
 	}
 }
@@ -139,6 +139,7 @@ PCB* create_process(uint32_t disk_offset) {
 	printk("(create_process) ucr3=0x%x, updir=0x%x\n", pcb[pcb_idx].ucr3.val, pcb[pcb_idx].updir);
 	lcr3(pcb[pcb_idx].ucr3.val);
 	printk("(create_process) about to leave\n"); //while(1);
+	print_mem(pcb_idx);
 	pcb[pcb_idx].entry = elf->entry;
 	pcb[pcb_idx].status=RUNNABLE;
 	printk("\n");
