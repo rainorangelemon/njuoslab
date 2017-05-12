@@ -64,29 +64,6 @@ int main(void) {
 
 	printk("Here is main()\n");
 
-	//sti(); hlt(); cli(); while(1);
-	/*
-	struct ELFHeader *elf;
-	struct ProgramHeader *ph, *eph;
-	unsigned char *pa, *i;
-
-	//elf = (struct ElfHeader*)0x1f00000;
-	uint8_t buf[4096];
-	elf = (struct ELFHeader*)buf;
-	printk("addr of buf: 0x%x\n", (uint32_t)buf);
-
-	readseg((unsigned char*)elf, 4096, GAME_OFFSET_IN_DISK);
-
-	ph = (struct ProgramHeader*)((char *)elf + elf->phoff);
-	eph = ph + elf->phnum;
-	for(; ph < eph; ph ++) {
-		pa = (unsigned char*)ph->paddr;
-		printk("0x%x, 0x%x, 0x%x\n", pa, ph->filesz, ph->memsz);
-		readseg(pa, ph->filesz, GAME_OFFSET_IN_DISK + ph->off);
-		for(i = pa + ph->filesz; i < pa + ph->memsz; *i ++ = 0);
-	}
-	*/
-	
 	current_pid=-1;
 	PCB *pcb_p=create_process(GAME_OFFSET_IN_DISK);
 	set_trapframe((void*)pcb_p->kstack,pcb_p->entry);
@@ -104,32 +81,3 @@ int main(void) {
 	return 0;
 }
 
-/*
-void waitdisk(void) {
-	while((inb(0x1f7) & 0xc0) != 0x40);
-}
-
-void readsect(void *dst, int offset) {
-	waitdisk();
-
-	outb(0x1f2, 1);		// count = 1
-	outb(0x1f3, offset);
-	outb(0x1f4, offset >> 8);
-	outb(0x1f5, offset >> 16);
-	outb(0x1f6, (offset >> 24) | 0xe0);
-	outb(0x1f7, 0x20);	// cmd 0x20 - read sectors
-
-	waitdisk();
-
-	insl(0x1f0, dst, SECTSIZE/4);	//read a sector
-}
-
-void readseg(unsigned char *pa, int count, int offset) {
-	unsigned char *epa;
-	epa = pa + count;
-	pa -= offset % SECTSIZE;
-	offset = (offset / SECTSIZE) + 1;
-	for(; pa < epa; pa += SECTSIZE, offset ++)
-		readsect(pa, offset);
-}
-*/
