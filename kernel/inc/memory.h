@@ -112,10 +112,12 @@ PCB pcb[NR_PCB];
 
 int current_pid;
 
+void readseg(unsigned char*,int,int);
 void init_pte_info();
 uint32_t get_pte();
 void free_pte(int);
 void free_address(int);
+uint32_t page_trans(int,uint32_t);
 
 int get_pcb();
 void init_pcb();
@@ -123,5 +125,7 @@ PCB* create_process(uint32_t);
 void destroy_process(int pid);
 void pop_tf_process(TrapFrame4p *tf);
 void run_process(int);
+void schedule();
+
 
 #endif

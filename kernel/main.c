@@ -48,6 +48,7 @@ void INIT_WORK(){
 	init_idt();
 	init_timer();
 	add_irq_handle(0, timer_event);
+	add_irq_handle(0, schedule);
 	add_irq_handle(1, keyboard_event);
 }
 
@@ -91,19 +92,13 @@ int main(void) {
 	set_trapframe((void*)pcb_p->kstack,pcb_p->entry);
 	printk("here we would go!\n");
 
-	asm volatile("movl %0, %%esp" : :"a"(pcb_p->kstack));
-	asm volatile("popal;\
-			pushl %eax;\
-			movw 4(%esp),%ax;\
-			movw %ax,%gs;\
-			movw %ax,%fs;\
-			movw %ax,%es;\
-			movw %ax,%ds;\
-			popl %eax;\
-			addl $0x18,%esp;\
-			iret");
+	pop_tf_process((void*)pcb_p->kstack);
+	
 
 	//sti(); hlt(); cli(); while(1);
+
+	printk("this is init process");
+	while(1);
 
 	panic("YOU shouldn't get here!\n");
 	return 0;

@@ -55,6 +55,18 @@ void free_pcb(int i) {
 
 uint32_t page_trans(int, uint32_t);
 
+void print_mem(int idx){
+	int i;
+	printk("uptable[0]:0x%x\n",(void*)pcb[idx].uptable[0]);
+	printk("uptable[1]:0x%x\n",(void*)pcb[idx].uptable[1]);
+	printk("uptable[2]:0x%x\n",(void*)pcb[idx].uptable[2]);
+	for(i=0;i<NR_PDE;i++){
+		if(pcb[idx].updir[i].present){
+			printk("idx_updir:0x%x, uptable_address:0x%x\n",i,pcb[idx].updir[i].page_frame<<PGSHIFT);
+		}
+	}
+}
+
 PCB* create_process(uint32_t disk_offset) {
 	int pcb_idx = get_pcb();
 	if(pcb_idx < 0) panic("No more available pcb!\n");
@@ -77,7 +89,6 @@ PCB* create_process(uint32_t disk_offset) {
 		va = ph->vaddr;
 		int pde_num = PDX(va + ph->memsz - 1) - PDX(va) + 1;
 		printk("0x%x, 0x%x, 0x%x, pde_num=0x%x\n", va, ph->filesz, ph->memsz, pde_num);
-
 		mm_malloc(pcb_idx, PDX(va), pde_num); //fill the pde and pte
 
 		int i;
@@ -130,6 +141,7 @@ PCB* create_process(uint32_t disk_offset) {
 	printk("(create_process) about to leave\n"); //while(1);
 	pcb[pcb_idx].entry = elf->entry;
 	pcb[pcb_idx].status=RUNNABLE;
+	printk("\n");
 	return &pcb[pcb_idx];
 }
 

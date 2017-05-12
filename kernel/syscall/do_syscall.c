@@ -1,8 +1,9 @@
 #include "common.h"
 #include "irq.h"
 #include "x86/memory.h"
+#include "process.h"
 
-enum {SYS_write,SYS_time,SYS_kbd,SYS_video};
+enum {SYS_write,SYS_time,SYS_kbd,SYS_video,SYS_fork,SYS_sleep,SYS_exit,SYS_getpid};
 
 extern uint32_t time_tick;
 int fs_write(int,void*,int);
@@ -22,6 +23,19 @@ void do_syscall(struct TrapFrame4p *tf){
 			break;
 		case SYS_video:
 			tf->eax=load_vmem((uint8_t*)tf->ebx);
+			break;
+		case SYS_fork:
+			tf->eax=system_fork();
+			break;
+		case SYS_sleep:
+			printk("it is going into sleep for %d",(uint32_t)tf->ebx);
+			system_sleep((uint32_t)tf->ebx);
+			break;
+		case SYS_exit:
+			system_exit();
+			break;
+		case SYS_getpid:
+			tf->eax=getpid();
 			break;
 		default:
 			panic("No such call: id=%d",tf->eax);

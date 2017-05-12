@@ -2,6 +2,10 @@
 #include "x86.h"
 #include "string.h"
 
+int getpid(){
+	return current_pid;
+}
+
 int find_next_runnable(){
 	int now=current_pid;
 	if(pcb[now].status==RUNNING)
@@ -27,7 +31,9 @@ void schedule(){
 				pcb[i].status=RUNNABLE;
 		}
 	}
-	run_process(find_next_runnable());
+	int next=find_next_runnable();
+	if((next!=-1)&&(next!=current_pid))
+		run_process(find_next_runnable());
 }
 
 
@@ -50,32 +56,21 @@ int system_fork(){
 	int new_id=get_pcb();
 	pcb[new_id].entry=pcb[current_pid].entry;
 	pcb[new_id]._free_pte=pcb[current_pid]._free_pte;
-	int i;
+	int i,j,k;
 	for(i=0;i<4096;i++)
 		pcb[new_id].kstack[i]=pcb[current_pid].kstack[i];
 	lcr3(pcb[new_id].ucr3.val);
+	printk("yes we can");
 	for(i=0;i<NR_PDE;i++){
 		if(pcb[current_pid].updir[i].present){
-			PTE *old_uptable_p;
-			old_uptable_p=(void*)pa_to_va(((pcb[current_pid].updir[i].val)>>12)<<12);	
-			int index;
-			for(index=0;index<3;index++){
-				if(old_uptable_p==pcb[current_pid].uptable[index])
-					break;
-			}
-			PTE *uptable_p=pcb[new_id].uptable[index];
-			int physbase=get_pte();
-			pcb[new_id].updir[i].val=va_to_pa(uptable_p)|PTE_P|PTE_W|PTE_U;
-			int k;
-			for(k=0;k<NR_PTE;k++){
-				uptable_p->val=physbase|PTE_P|PTE_W|PTE_U;
-				memcpy((void*)physbase,(void*)(((old_uptable_p->val)>>12)<<12),PGSIZE);
-				old_uptable_p++;
-				uptable_p++;
-				physbase=physbase+PGSIZE;
+			int old_uptable_index=pcb[current_pid].updir[i].page_frame<<PGSHIFT;
+			int has_find=0;
+			for(j=0;j<3;j++){
+				if()
 			}
 		}
 	}
 	pcb[new_id].status=RUNNABLE;
+	printk("fork ends here");
 	return new_id;
 }

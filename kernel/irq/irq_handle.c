@@ -1,6 +1,7 @@
 #include "common.h"
 #include "irq.h"
 #include "x86/memory.h"
+#include "memory.h"
 
 #define NR_IRQ_HANDLE 32
 #define NR_HARD_INTR 16 /* At most 16 kinds of hardware interrupts. */
@@ -30,7 +31,12 @@ void add_irq_handle(int irq, void (*func)(void) ) {
 void irq_handle(struct TrapFrame4p *tf) {
 	//printk("irq_handle(), irq=%d, eip=0x%x\n", tf->irq, tf->eip);
 
+
 	int irq = tf->irq;
+	if(current_pid!=-1){
+		TrapFrame4p *temp=(void*)pcb[current_pid].kstack;
+		*temp=*tf;
+	}
 
 	if(irq == 0x80) do_syscall(tf);
 	else if(irq < 1000){
