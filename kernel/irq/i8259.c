@@ -1,11 +1,12 @@
-#include "x86.h"
+#include "../include/x86.h"
 
 #define PORT_PIC_MASTER 0x20
 #define PORT_PIC_SLAVE  0xA0
-#define IRQ_OFFSET		0x20 /*This is a good idea*/
+#define IRQ_OFFSET		0x20
 #define IRQ_SLAVE       2
 
-void init_i8259(void) {
+void init_intr(void)
+{
 	/* mask all interrupts */
 	outb(PORT_PIC_MASTER + 1, 0xFF);
 	outb(PORT_PIC_SLAVE + 1 , 0xFF);

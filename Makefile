@@ -39,8 +39,7 @@ OBJ_BOOT_DIR   := $(OBJ_DIR)/$(BOOT_DIR)
 OBJ_KERNEL_DIR := $(OBJ_DIR)/$(KERNEL_DIR)
 OBJ_GAME_DIR   := $(OBJ_DIR)/$(GAME_DIR)
 
-KERNEL_LD_SCRIPT := $(shell find $(KERNEL_DIR) -name "*.ld")
-GAME_LD_SCRIPT	 := $(shell find $(GAME_DIR) -name "*.ld")
+LD_SCRIPT := $(shell find $(KERNEL_DIR) -name "*.ld")
 
 LIB_C := $(wildcard $(LIB_DIR)/*.c)
 LIB_O := $(LIB_C:%.c=$(OBJ_DIR)/%.o)
@@ -58,49 +57,51 @@ KERNEL_O += $(KERNEL_S:%.S=$(OBJ_DIR)/%.o)
 GAME_C := $(shell find $(GAME_DIR) -name "*.c")
 GAME_O := $(GAME_C:%.c=$(OBJ_DIR)/%.o)
 
-$(IMAGE): $(BOOT) $(PROGRAM)
+include config/Makefile.build
+include config/Makefile.git
+
+
+$(IMAGE): $(BOOT) $(KERNEL) $(GAME)
 	@$(DD) if=/dev/zero of=$(IMAGE) count=10000         > /dev/null # 准备磁盘文件
 	@$(DD) if=$(BOOT) of=$(IMAGE) conv=notrunc          > /dev/null # 填充 boot loader
-	@$(DD) if=$(PROGRAM) of=$(IMAGE) seek=1 conv=notrunc > /dev/null # 填充 kernel, 跨过 mbr
-
+	@$(DD) if=$(KERNEL) of=$(IMAGE) seek=1 conv=notrunc > /dev/null # 填充 kernel, 跨过 mbr
+	@$(DD) if=$(GAME) of=$(IMAGE) seek=201 conv=notrunc > /dev/null # 填充 kernel, 跨过 mbr
 $(BOOT): $(BOOT_O)
 	$(LD) -e start -Ttext=0x7C00 -m elf_i386 -nostdlib -o $@.out $^
 	$(OBJCOPY) --strip-all --only-section=.text --output-target=binary $@.out $@
 	@rm $@.out
-	perl ./boot/genboot.pl $@
-#	ruby ./boot/mbr.rb $@
+	perl boot/genboot.pl $@
 
-$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.[cS]
+$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.S
 	@mkdir -p $(OBJ_BOOT_DIR)
-	$(CC) $(CFLAGS) -Os -I ./boot/inc $< -o $@
+	$(CC) $(CFLAGS) -Os $< -o $@
 
-#$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.c
-#	@mkdir -p $(OBJ_BOOT_DIR)
-#	$(CC) $(CFLAGS) -Os -I ./boot/inc $< -o $@
+$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.c
+	@mkdir -p $(OBJ_BOOT_DIR)
+	$(CC) $(CFLAGS) -Os $< -o $@
 
-$(PROGRAM): $(KERNEL) $(GAME)
-	cat $(KERNEL) $(GAME) > $(PROGRAM)
+$(KERNEL): $(LD_SCRIPT)
+$(KERNEL): $(KERNEL_O) $(LIB_O)
+	$(LD) -m elf_i386 -T $(LD_SCRIPT) -nostdlib -o $@ $^ $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
+
+$(GAME): $(GAME_O) $(LIB_O)
+	#echo $(GAME_O)
+	#ehco "*************"
+	$(LD) -m elf_i386 -e game_main -nostdlib -o $@ $^ $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
+
+
 
 $(OBJ_LIB_DIR)/%.o : $(LIB_DIR)/%.c
 	@mkdir -p $(OBJ_LIB_DIR)
 	$(CC) $(CFLAGS) $< -o $@
 
-$(KERNEL): $(KERNEL_LD_SCRIPT)
-$(KERNEL): $(KERNEL_O) $(LIB_O)
-	$(LD) -m elf_i386 -T $(KERNEL_LD_SCRIPT) -nostdlib -o $@ $^ $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
-	perl ./kernel/genkernel.pl $@
-
 $(OBJ_KERNEL_DIR)/%.o: $(KERNEL_DIR)/%.[cS]
 	mkdir -p $(OBJ_DIR)/$(dir $<)
-	$(CC) $(CFLAGS) -I ./kernel/inc $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
-$(GAME): $(GAME_LD_SCRIPT)
-$(GAME): $(GAME_O) $(LIB_O)
-	$(LD) -m elf_i386 -T $(GAME_LD_SCRIPT) -nostdlib -o $@ $^ $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
-
-$(OBJ_GAME_DIR)/%.o: $(GAME_DIR)/%.c
+$(OBJ_GAME_DIR)/%.o: $(GAME_DIR)/%.[cS]
 	mkdir -p $(OBJ_DIR)/$(dir $<)
-	$(CC) $(CFLAGS) -I ./game/inc $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 DEPS := $(shell find -name "*.d")
 -include $(DEPS)
@@ -109,6 +110,7 @@ DEPS := $(shell find -name "*.d")
 
 qemu: $(IMAGE)
 	$(QEMU) $(QEMU_OPTIONS) $(IMAGE)
+#	$(call git_commit, "run qemu", $(GITFLAGS))
 
 # Faster, but not suitable for debugging
 qemu-kvm: $(IMAGE)
@@ -116,9 +118,11 @@ qemu-kvm: $(IMAGE)
 
 debug: $(IMAGE)
 	$(QEMU) $(QEMU_DEBUG_OPTIONS) $(QEMU_OPTIONS) $(IMAGE)
+#	$(call git_commit, "debug", $(GITFLAGS))
 
 gdb:
 	$(GDB) $(GDB_OPTIONS)
+#	$(call git_commit, "run gdb", $(GITFLAGS))
 
 clean:
 	@rm -rf $(OBJ_DIR) 2> /dev/null
@@ -127,3 +131,12 @@ clean:
 	@rm -rf $(GAME)	   2> /dev/null
 	@rm -rf $(PROGRAM) 2> /dev/null
 	@rm -rf $(IMAGE)   2> /dev/null
+
+submit: clean
+	cd .. && tar cvj $(shell pwd | grep -o '[^/]*$$') > $(STU_ID).tar.bz2
+
+commit:
+	@git commit --allow-empty
+
+log:
+	@git log --author=dancingflower

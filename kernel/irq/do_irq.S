@@ -1,4 +1,4 @@
-#include "mmu.h"
+#include "../include/mmu.h"
 
 #----|-----entry------|-errorcode-|-----id-----|---handler---|
 .globl vec0;    vec0:   pushl $0;  pushl    $0; jmp asm_do_irq
@@ -29,38 +29,17 @@
 .extern irq_handle
 
 # The follow code is *VERY* important for interrupts and exceptions handling.
-# I should make myself understand it clearly.
+# You should make yourself understand it clearly.
 
 asm_do_irq:
-	cli
-	pushl	%ds
-	pushl	%es
-	pushl	%fs
-	pushl	%gs
-
-	pushl	%eax
-	movw	$SELECTOR_KERNEL(SEG_KERNEL_DATA),%ax
-	movw	%ax,%ds
-	movw	%ax,%es
-	movw	%ax,%fs
-	movw	%ax,%gs
-	popl	%eax
+	pushl %ds
+	pushl %es
 	pushal
-	pushl %esp		# ???
-	sti
+
+	pushl %esp			# ???
 	call irq_handle
-	cli
 	addl $4, %esp
+
 	popal
-	pushl %eax
-	movw  4(%esp),%ax
-	movw  %ax,%gs
-	movw  %ax,%fs
-	movw  %ax,%es
-	movw  %ax,%ds
-	popl  %eax
-
-	addl $0x18, %esp
-	sti
-
+	addl $16, %esp
 	iret

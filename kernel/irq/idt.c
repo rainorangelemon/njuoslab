@@ -1,17 +1,18 @@
-#include "types.h"
-#include "x86.h"
-#include "mmu.h"
-#include "common.h"
+#include "../include/types.h"
+#include "../include/x86.h"
+#include "../include/mmu.h"
+#include "../include/common.h"
 
 #define INTERRUPT_GATE_32   0xE
 #define TRAP_GATE_32        0xF
-#define NR_IRQ				256
+#define NR_IRQ              256
 
-/* Each entry of the IDT is either an interrupt gate, or a trap gate */
+
 Gatedesc idt[NR_IRQ];
 
-/* Setup a interrupt gate for interrupt handler. */
-static void set_intr(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t dpl) {
+
+static void set_intr(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t dpl)
+{
 	ptr->gd_off_15_0 = offset & 0xFFFF;
 	ptr->gd_sel = selector;
 	ptr->gd_args = 0;
@@ -23,8 +24,8 @@ static void set_intr(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t
 	ptr->gd_off_31_16 = (offset >> 16) & 0xFFFF;
 }
 
-/* Setup a trap gate for cpu exception. */
-static void set_trap(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t dpl) {
+static void set_trap(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t dpl)
+{
 	ptr->gd_off_15_0 = offset & 0xFFFF;
 	ptr->gd_sel = selector;
 	ptr->gd_args = 0;
@@ -36,18 +37,19 @@ static void set_trap(Gatedesc *ptr, uint32_t selector, uint32_t offset, uint32_t
 	ptr->gd_off_31_16 = (offset >> 16) & 0xFFFF;
 }
 
-static void write_idtr(void *addr, uint32_t size) {
+static void write_idtr(void *addr, uint32_t size)
+{
 	static volatile uint16_t data[3];
 	data[0] = size - 1;
 	data[1] = (uint32_t)addr;
 	data[2] = ((uint32_t)addr) >> 16;
-	//printk("addr = 0x%x, syscall in idt is %x %x\n", addr, (*((uint32_t *)(addr + 8*0x80))), (*((uint32_t *)(addr + 8*0x80 + 4))));
 	lidt((void*)data);
 }
 
 void irq0();
 void irq1();
 void irq14();
+
 void vec0();
 void vec1();
 void vec2();
@@ -67,7 +69,8 @@ void vecsys();
 
 void irq_empty();
 
-void init_idt() {
+void init_idt()
+{
 	int i;
 	for (i = 0; i < NR_IRQ; i ++) {
 		set_trap(idt + i, SEG_KERNEL_CODE << 3, (uint32_t)irq_empty, DPL_KERNEL);
@@ -88,12 +91,12 @@ void init_idt() {
 	set_trap(idt + 13, SEG_KERNEL_CODE << 3, (uint32_t)vec13, DPL_KERNEL);
 	set_trap(idt + 14, SEG_KERNEL_CODE << 3, (uint32_t)vec14, DPL_KERNEL);
 
+	set_trap(idt + 0x80, SEG_KERNEL_CODE << 3, (uint32_t)vecsys, DPL_USER);
+
 	set_intr(idt + 32 + 0, SEG_KERNEL_CODE << 3, (uint32_t)irq0, DPL_KERNEL);
 	set_intr(idt + 32 + 1, SEG_KERNEL_CODE << 3, (uint32_t)irq1, DPL_KERNEL);
 	set_intr(idt + 32 + 14, SEG_KERNEL_CODE << 3, (uint32_t)irq14, DPL_KERNEL);
-	/* the system call 0x80 */
-	set_trap(idt + 0x80, SEG_KERNEL_CODE << 3, (uint32_t)vecsys, DPL_USER);
 
-	/* the ``idt'' is its virtual address */
+
 	write_idtr(idt, sizeof(idt));
 }
