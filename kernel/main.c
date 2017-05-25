@@ -1,17 +1,17 @@
-#include "include/x86.h"
-#include "include/elf.h"
-#include "include/common.h"
-#include "include/string.h"
-#include "include/mmu.h"
-#include "include/memory.h"
-#include "include/video.h"
-#include "include/system.h"
-#include "include/memlayout.h"
-#include "include/process/env.h"
-#include "include/irq.h"
-#include "include/pmap.h"
-#include "include/game.h"
-#include "include/device/keyboard.h"
+#include "x86.h"
+#include "elf.h"
+#include "common.h"
+#include "string.h"
+#include "mmu.h"
+#include "memory.h"
+#include "video.h"
+#include "system.h"
+#include "memlayout.h"
+#include "process/pm.h"
+#include "irq.h"
+#include "pmap.h"
+#include "game.h"
+#include "device/keyboard.h"
 
 extern pde_t entry_pgdir[];
 void init_cond();
@@ -38,7 +38,7 @@ void init_cond()
 	init_mem();
 	set_timer_intr_handler(kernel_timer_event);
 	asm volatile("cli");
-	env_init();
-	env_create();
-	env_run(&envs[0]);
+	pcb_init();
+	pcb_create();
+	pcb_run(&pcbs[0]);
 }

@@ -1,4 +1,4 @@
-#include "../include/mmu.h"
+#include "mmu.h"
 
 #----|-----entry------|-errorcode-|-----id-----|---handler---|
 .globl vec0;    vec0:   pushl $0;  pushl    $0; jmp asm_do_irq

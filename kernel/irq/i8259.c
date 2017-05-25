@@ -1,4 +1,4 @@
-#include "../include/x86.h"
+#include "x86.h"
 
 #define PORT_PIC_MASTER 0x20
 #define PORT_PIC_SLAVE  0xA0

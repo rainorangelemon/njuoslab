@@ -1,10 +1,10 @@
-#include "../include/common.h"
-#include "../include/irq.h"
-#include "../include/assert.h"
-#include "../include/mmu.h"
-#include "../include/x86.h"
-#include "../include/env.h"
-#include "../include/types.h"
+#include "common.h"
+#include "irq.h"
+#include "assert.h"
+#include "mmu.h"
+#include "x86.h"
+#include "pm.h"
+#include "types.h"
 
 static void (*do_timer)(void);
 static void (*do_keyboard)(int);

@@ -1,5 +1,5 @@
-#include "../include/stdio.h"
-#include "../include/x86.h"
+#include "stdio.h"
+#include "x86.h"
 
 int printk(const char *ctl, ...);
 

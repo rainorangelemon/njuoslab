@@ -1,15 +1,15 @@
-#include "../include/video.h"
-#include "../include/mmu.h"
-#include "../include/system.h"
-#include "../include/x86.h"
-#include "../include/elf.h"
-#include "../include/string.h"
-#include "../include/timer.h"
-#include "../include/keyboard.h"
-#include "../include/game.h"
-#include "../include/irq.h"
+#include "video.h"
+#include "mmu.h"
+#include "system.h"
+#include "x86.h"
+#include "elf.h"
+#include "string.h"
+#include "timer.h"
+#include "keyboard.h"
+#include "game.h"
+#include "irq.h"
 #include "../../memory/stdio.h"
-#include "../include/device/keyboard.h"
+#include "device/keyboard.h"
 
 #ifndef SERIAL_PORT
 #define SERIAL_PORT 0x3F8
@@ -34,53 +34,21 @@ void do_syscall(TrapFrame* tf)
 {
 	switch (tf->eax)
 	{
-		case env_fork:
-			system_env_fork();
+		case SYS_fork:
+			system_pcb_fork();
 			break;
-		case env_sleep:
+		case SYS_sleep:
 			printk("sleep!!\n");
-			system_env_sleep((uint32_t)tf->ebx);
+			system_pcb_sleep((uint32_t)tf->ebx);
 			break;
-		case env_exit:
-			system_env_exit();
+		case SYS_exit:
+			system_pcb_exit();
 			break;
 		case 0:
 			set_timer_intr_handler((void*)tf->ebx);
 			break;
 		case 1:
 			set_keyboard_intr_handler((void*)tf->ebx);
-			break;
-		case drawpixel:
-		{
-			int offset = tf->ebx + tf->ecx * SCR_WIDTH;
-			uint32_t *position = vmembase + offset;
-			(*position) = tf->edx;
-		}
-		break;
-		case serialprint:
-			while ((inb(SERIAL_PORT + 5) & 0x20) == 0);
-			outb(SERIAL_PORT,tf->ebx);
-			break;
-		case drawpixeloff:
-		{
-			uint32_t *position = vmembase + tf->ebx;
-			(*position) = tf->ecx;
-		}
-		break;
-		case clearscreen:
-			memset((void*)vmembase,tf->ebx,SCR_SIZE);
-			break;
-		case initserial:
-			init_serial();
-			break;
-		case inittimer:
-			init_timer();
-			break;
-		case enableinterrupt:
-			asm volatile("sti");
-			break;
-		case disenableinterrupt:
-			asm volatile("cli");
 			break;
 		case SYS_video:
 		{	uint32_t *vbuf;

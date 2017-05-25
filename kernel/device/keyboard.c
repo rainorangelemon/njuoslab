@@ -1,6 +1,6 @@
-#include "../include/common.h"
-#include "../include/x86.h"
-#include "../include/device/scan_code.h"
+#include "common.h"
+#include "x86.h"
+#include "device/scan_code.h"
 
 #define NR_KEYS 10
 

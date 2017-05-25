@@ -1,6 +1,6 @@
-#include "../include/stdio.h"
-#include "../include/x86.h"
-#include "../include/common.h"
+#include "../inc/stdio.h"
+#include "x86.h"
+#include "common.h"
 
 const char *panicstr;
 

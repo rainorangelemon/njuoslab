@@ -33,7 +33,6 @@ bootmain(void) {
 	for(i=pa+ph->filesz;i<pa+ph->memsz;*i++=0);
 	}
 	/*跳转到程序中*/
-	//asm volatile("hlt");
 	((void(*)(void))elf->entry)();
 
 }

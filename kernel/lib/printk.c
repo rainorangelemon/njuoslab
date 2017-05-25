@@ -1,6 +1,6 @@
-#include "../include/x86.h"
-#include "../include/stdarg.h"
-#include "../include/stdio.h"
+#include "x86.h"
+#include "stdarg.h"
+#include "stdio.h"
 
 void serial_printc(char);
 

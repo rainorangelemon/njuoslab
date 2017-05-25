@@ -1,5 +1,7 @@
 #include"types.h"
-#include"env.h"
+#include"pm.h"
+#ifndef RAIN_SYS_H
+#define RAIN_SYS_H 
 #define  drawpixeloff (62)
 #define  drawpixel (60)
 #define  serialprint (61)
@@ -8,9 +10,9 @@
 #define  inittimer (65)
 #define  enableinterrupt (66)
 #define  disenableinterrupt (67)
-#define  env_fork (68)
-#define  env_sleep (69)
-#define  env_exit (70)
+#define  SYS_fork (68)
+#define  SYS_sleep (69)
+#define  SYS_exit (70)
 #define  SYS_video (71)
 #define  SYS_kbd (72)
 #define  SYS_time (73)
@@ -26,8 +28,9 @@ void system_init_serial();
 void system_init_timer();
 void system_enable_interrupt();
 void system_disenable_interrupt();
-int system_env_fork();
-void system_env_sleep(uint32_t);
-void system_env_exit();
-struct Env*seek_next_runnable();
+int system_pcb_fork();
+void system_pcb_sleep(uint32_t);
+void system_pcb_exit();
+struct PCB*seek_next_runnable();
 void kernel_timer_event();
+#endif

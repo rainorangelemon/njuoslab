@@ -1,4 +1,4 @@
-#include "../include/string.h"
+#include "string.h"
 
 #define ASM 1
 

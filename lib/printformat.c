@@ -1,16 +1,16 @@
-#include "../include/types.h"
-#include "../include/stdio.h"
-#include "../include/string.h"
-#include "../include/stdarg.h"
-#include "../include/error.h"
+#include "types.h"
+#include "stdio.h"
+#include "string.h"
+#include "stdarg.h"
+#include "error.h"
 
 static const char * const error_string[MAXERROR] =
 {
 	[E_UNSPECIFIED]	= "unspecified error",
-	[E_BAD_ENV]	= "bad environment",
+	[E_BAD_PCB]	= "bad environment",
 	[E_INVAL]	= "invalid parameter",
 	[E_NO_MEM]	= "out of memory",
-	[E_NO_FREE_ENV]	= "out of environments",
+	[E_NO_FREE_PCB]	= "out of environments",
 	[E_FAULT]	= "segmentation fault",
 };
 

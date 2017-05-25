@@ -1,7 +1,7 @@
-#include "../include/types.h"
-#include "../include/x86.h"
-#include "../include/mmu.h"
-#include "../include/common.h"
+#include "types.h"
+#include "x86.h"
+#include "mmu.h"
+#include "common.h"
 
 #define INTERRUPT_GATE_32   0xE
 #define TRAP_GATE_32        0xF

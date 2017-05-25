@@ -1,5 +1,5 @@
-#include "../include/common.h"
-#include "../include/x86.h"
+#include "common.h"
+#include "x86.h"
 
 #define VGA_DAC_READ_INDEX 0x3C7
 #define VGA_DAC_WRITE_INDEX 0x3C8

@@ -83,36 +83,4 @@ typedef union CR3 {
 	uint32_t val;
 } CR3;
 
-typedef struct PCB {
-	int PID;
-	int _free_pte;
-	uint32_t entry;
-	CR3 ucr3;
-	PDE updir[NR_PDE] align_to_page;
-	PTE uptable[3][NR_PTE] align_to_page;
-	uint8_t kstack[4096];
-} PCB;
-
-/*
-typedef struct GateDescriptor {
-	uint32_t offset_15_0      : 16;
-	uint32_t segment          : 16;
-	uint32_t pad0             : 8;
-	uint32_t type             : 4;
-	uint32_t system           : 1;
-	uint32_t privilege_level  : 2;
-	uint32_t present          : 1;
-	uint32_t offset_31_16     : 16;
-} GateDesc;
-*/
-
-/* from mm.c */
-void init_pte_info();
-uint32_t get_pte();
-void free_pte(int);
-
-/* from pm.c */
-void init_pcb();
-PCB* create_process(uint32_t);
-
 #endif

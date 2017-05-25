@@ -58,7 +58,6 @@ GAME_C := $(shell find $(GAME_DIR) -name "*.c")
 GAME_O := $(GAME_C:%.c=$(OBJ_DIR)/%.o)
 
 include config/Makefile.build
-include config/Makefile.git
 
 
 $(IMAGE): $(BOOT) $(KERNEL) $(GAME)
@@ -72,9 +71,9 @@ $(BOOT): $(BOOT_O)
 	@rm $@.out
 	perl boot/genboot.pl $@
 
-$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.S
+$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.[cS]
 	@mkdir -p $(OBJ_BOOT_DIR)
-	$(CC) $(CFLAGS) -Os $< -o $@
+	$(CC) $(CFLAGS) -Os -I ./boot/inc $< -o $@
 
 $(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.c
 	@mkdir -p $(OBJ_BOOT_DIR)
@@ -97,11 +96,11 @@ $(OBJ_LIB_DIR)/%.o : $(LIB_DIR)/%.c
 
 $(OBJ_KERNEL_DIR)/%.o: $(KERNEL_DIR)/%.[cS]
 	mkdir -p $(OBJ_DIR)/$(dir $<)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -I ./kernel/inc $< -o $@
 
 $(OBJ_GAME_DIR)/%.o: $(GAME_DIR)/%.[cS]
 	mkdir -p $(OBJ_DIR)/$(dir $<)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -I ./game/inc $< -o $@
 
 DEPS := $(shell find -name "*.d")
 -include $(DEPS)
@@ -135,8 +134,3 @@ clean:
 submit: clean
 	cd .. && tar cvj $(shell pwd | grep -o '[^/]*$$') > $(STU_ID).tar.bz2
 
-commit:
-	@git commit --allow-empty
-
-log:
-	@git log --author=dancingflower

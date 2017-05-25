@@ -1,6 +1,6 @@
-#include "../include/types.h"
-#include "../include/x86.h"
-#include "../include/common.h"
+#include "types.h"
+#include "x86.h"
+#include "common.h"
 
 #define PORT_CH_0 0x40
 #define PORT_CMD 0x43

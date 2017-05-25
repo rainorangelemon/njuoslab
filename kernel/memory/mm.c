@@ -1,9 +1,9 @@
-#include"../include/memlayout.h"
-#include"../include/x86.h"
-#include"../include/pmap.h"
-#include"../include/string.h"
-#include"../include/stdio.h"
-#include"../include/mmu.h"
+#include"memlayout.h"
+#include"x86.h"
+#include"pmap.h"
+#include"string.h"
+#include"stdio.h"
+#include"mmu.h"
 
 enum {
 	// Kernel error codes -- keep in sync with list in lib/printfmt.c.

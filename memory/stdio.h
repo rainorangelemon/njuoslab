@@ -1,8 +1,8 @@
 #ifndef __STDIO_H__
 #define __STDIO_H__
 
-#include "../include/types.h"
-#include "../include/stdarg.h"
+#include "types.h"
+#include "stdarg.h"
 
 void serial_printc(char);
 

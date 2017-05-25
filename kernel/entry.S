@@ -1,5 +1,5 @@
-#include "include/mmu.h"
-#include "include/memlayout.h"
+#include "mmu.h"
+#include "memlayout.h"
 
 # Shift Right Logical 
 #define SRL(val, shamt)		(((val) >> (shamt)) & ~(-1 << (32 - (shamt))))

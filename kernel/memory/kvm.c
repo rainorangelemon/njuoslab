@@ -1,7 +1,7 @@
-#include "../include/mmu.h"
-#include "../include/string.h"
-#include "../include/x86.h"
-#include "../include/stdio.h"
+#include "mmu.h"
+#include "string.h"
+#include "x86.h"
+#include "stdio.h"
 
 static TSS tss; 
 extern char bootstacktop[];

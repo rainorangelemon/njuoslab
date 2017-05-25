@@ -1,4 +1,4 @@
-#include "include/common.h"
+#include "common.h"
 int printk(const char* ctl,...);
 
 void testprintk()

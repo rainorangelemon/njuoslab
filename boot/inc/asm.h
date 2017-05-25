@@ -1,4 +1,3 @@
-/* 参考：i386手册 */
 #define GDT_ENTRY(n)  \
 	((n) << 3)
 
