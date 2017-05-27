@@ -29,16 +29,20 @@ extern struct PageInfo pages[];
 
 void init_cond()
 {
-	set_keyboard_intr_handler(Keyboard_event);
+	add_irq_handle(1,Keyboard_event);
 	init_segment();
 	init_idt();
 	init_intr();
 	init_serial();
 	init_timer();
 	init_mem();
-	set_timer_intr_handler(kernel_timer_event);
+	add_irq_handle(0,kernel_timer_event);
 	asm volatile("cli");
 	pcb_init();
 	pcb_create();
 	pcb_run(&pcbs[0]);
+	printk("your life ends here\n");
+	while(1){
+		printk("here is init process\n");	
+	}
 }

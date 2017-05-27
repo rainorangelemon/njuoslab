@@ -20,5 +20,6 @@ typedef struct TrapFrame {
 	uint16_t pad3;
 }TrapFrame;
 
+void add_irq_handle(int , void(*)(void));
 
 #endif

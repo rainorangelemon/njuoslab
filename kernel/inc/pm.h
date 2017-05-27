@@ -23,12 +23,24 @@ enum PcbType{
 	PCB_TYPE_USER=0
 };
 
+struct context{
+	uint32_t eip;
+	uint32_t esp;
+	uint32_t edi;
+	uint32_t esi;
+	uint32_t edx;
+	uint32_t ecx;
+	uint32_t ebx;
+	uint32_t ebp;
+};
+
 #ifndef __struct_pcb__
 #define __struct_pcb__
 struct PCB{
 	struct TrapFrame tf;
 	struct PCB*pcb_link;
 	pid_t pid;
+	struct context context;
 	pid_t parent_id;
 	enum PcbType type;
 	unsigned status;

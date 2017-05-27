@@ -14,6 +14,7 @@ static const int keycode_array[] = {
 static int key_state[NR_KEYS];
 
 void Keyboard_event(void) {
+	printk("Keyboard event is called\n");
 	int key_code = inb(0x60); printk("keycode == 0x%x\n", key_code);
 	int i;
 	for (i = 0; i < NR_KEYS; i ++){

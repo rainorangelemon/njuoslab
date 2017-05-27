@@ -7,7 +7,8 @@
 #include "string.h"
 #include "common.h"
 
-uint32_t time_tick=0;
+uint32_t time_tick;
+uint32_t time_tick2;
 
 struct PCB*seek_next_runnable()
 {
@@ -31,17 +32,20 @@ struct PCB*seek_next_runnable()
 void kernel_timer_event()
 {
 	time_tick++;
+	if (time_tick==0) {time_tick2++;}
 	int i;
 	for (i = 0;i < NPCB;i++)
 	{
 		if (pcbs[i].status == SLEEP)
 		{
-			pcbs[i].sleep_time -= 1;
+			if (time_tick2==0) {pcbs[i].sleep_time -= 1; printk("sleep:%ud\n",pcbs[i].sleep_time);}
 			if (pcbs[i].sleep_time == 0) pcbs[i].status = RUNNABLE;
 		}
 	}
 	struct PCB* pcb = seek_next_runnable();
-	pcb_run(pcb);
+	if(pcb!=current_pcb){
+		pcb_run(pcb);
+	}
 }
 
 int system_pcb_fork()
@@ -82,15 +86,25 @@ void system_pcb_sleep(uint32_t time)
 {
 	current_pcb->status = SLEEP;
 	current_pcb->sleep_time = time;
+	/*return;*/
 	struct PCB* pcb = seek_next_runnable();
 	pcb_run(pcb);
 }
 
 void system_pcb_exit()
 {
-	current_pcb->status = DYING;
+	current_pcb->status = FREE;
 	pcb_destroy(current_pcb);
 	struct PCB* pcb = seek_next_runnable();
 	pcb_run(pcb);
+}
+
+int system_getpid(){
+	int i;
+	for(i=0;i<NPCB;i++){
+		if(current_pcb->pid==pcbs[i].pid)
+			break;
+	}
+	return i;
 }
 

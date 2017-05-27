@@ -10,6 +10,7 @@
 #include "irq.h"
 #include "../../memory/stdio.h"
 #include "device/keyboard.h"
+#include "process/pm.h"
 
 #ifndef SERIAL_PORT
 #define SERIAL_PORT 0x3F8
@@ -44,12 +45,6 @@ void do_syscall(TrapFrame* tf)
 		case SYS_exit:
 			system_pcb_exit();
 			break;
-		case 0:
-			set_timer_intr_handler((void*)tf->ebx);
-			break;
-		case 1:
-			set_keyboard_intr_handler((void*)tf->ebx);
-			break;
 		case SYS_video:
 		{	uint32_t *vbuf;
 			int i;
@@ -71,6 +66,9 @@ void do_syscall(TrapFrame* tf)
 			break;
 		case ReKbdbuf:
 			Refresh_Kbdbuf();
+			break;
+		case SYS_getpid:
+			tf->eax=system_getpid();
 			break;	
  	}
 }

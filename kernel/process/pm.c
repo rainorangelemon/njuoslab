@@ -116,31 +116,31 @@ void readseg(unsigned char *, int, int);
 static void load_icode(struct PCB*e,pde_t *entry_pgdir)
 {
 
-	struct Elf *elf;
-	struct Proghdr *ph,*eph;
+	struct ELFHeader *elf;
+	struct ProgramHeader *ph,*eph;
 	unsigned char pagebuffer[4096];
 	
-	elf = (struct Elf*)pcb_buffer;
+	elf = (struct ELFHeader*)pcb_buffer;
 	readseg((unsigned char *)elf,4096,0);
-	printk("the entry of the elf2 = 0x%08x\n",elf->e_entry);
+	printk("the entry of the elf2 = 0x%08x\n",elf->entry);
 
-	ph = (struct Proghdr*)((char*)elf + elf->e_phoff);
-	eph = ph + elf->e_phnum;
+	ph = (struct ProgramHeader*)((char*)elf + elf->phoff);
+	eph = ph + elf->phnum;
 	for(;ph < eph;ph++)
 	{
-		uint32_t va = ph->p_va;
+		uint32_t va = ph->va;
 		int data_loaded = 0;
-		if (ph->p_type == 1)
+		if (ph->type == 1)
 		{
-			while (va < ph->p_va + ph->p_memsz)
+			while (va < ph->va + ph->memsz)
 			{
 				memset(pagebuffer,0,4096);
 				uint32_t offset = va & 0xfff;
 				va = va & 0xfffff000;
 				struct PageInfo* page = page_alloc(1);
 				page_insert(entry_pgdir,page,(void*)va,PTE_U | PTE_W);
-				int n = (4096 - offset) > ph->p_memsz ? ph->p_memsz : (4096 - offset);
-				readseg((unsigned char*)(pagebuffer + offset),n,ph->p_offset + data_loaded);
+				int n = (4096 - offset) > ph->memsz ? ph->memsz : (4096 - offset);
+				readseg((unsigned char*)(pagebuffer + offset),n,ph->offset + data_loaded);
 				memcpy((void *)page2kva(page),pagebuffer,4096);
 				va += 4096;
 				data_loaded += n;
@@ -150,7 +150,7 @@ static void load_icode(struct PCB*e,pde_t *entry_pgdir)
 	}
 	//lcr3(PADDR(kern_pgdir));
 	e->pcb_pgdir = entry_pgdir;
-	e->tf.eip = elf->e_entry;
+	e->tf.eip = elf->entry;
 	region_alloc(e,(void*)(USTACKTOP - PGSIZE),PGSIZE);
 }
 
@@ -217,7 +217,7 @@ void pcb_run(struct PCB* e)
 	if (e == NULL)
 	{
 		printk("no pcb runnable\n");
-		while(1);
+		return;
 	}
 	if (current_pcb != e)
 	{
