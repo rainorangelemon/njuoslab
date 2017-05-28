@@ -52,3 +52,6 @@ gdtdesc:                           # GDT描述符
 	.word   (gdtdesc - gdt - 1)    # GDT长度，留意地址运算
 	.long   gdt                    # GDT地址
 
+spin:
+	jmp spin
+

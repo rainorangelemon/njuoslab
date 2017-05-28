@@ -21,20 +21,22 @@ bootmain(void) {
 	/* 因为引导扇区只有512字节，我们设置了堆栈从0x8000向下生长。
 	 * 我们需要一块连续的空间来容纳ELF文件头，因此选定了0x8000。 */
 	elf = (struct ELFHeader*)0x8000;
-
+	
 	/* 读入ELF文件头 */
-	readseg((unsigned char*)elf,4096,0);
+	readseg((unsigned char*)elf, 4096, 0);
+    
 	/* 把每个program segement依次读入内存 */
-	ph=(struct ProgramHeader*)((char*)elf+elf->phoff);
-	eph=ph+elf->phnum;
-	for(;ph<eph;ph++){
-	pa=(unsigned char*)ph->paddr;
-	readseg(pa,ph->filesz,ph->off);
-	for(i=pa+ph->filesz;i<pa+ph->memsz;*i++=0);
+	ph = (struct ProgramHeader*)((char *)elf + elf->phoff);
+	eph = ph + elf->phnum;
+	for(; ph < eph; ph ++) {
+		pa = (unsigned char*)ph->paddr; /* 获取物理地址 */
+		readseg(pa, ph->filesz, ph->off); /* 读入数据 */
+		for (i = pa + ph->filesz; i < pa + ph->memsz; *i ++ = 0);
 	}
-	/*跳转到程序中*/
-	((void(*)(void))elf->entry)();
 
+	((void(*)(void))(elf->entry - 0xC0000000))();
+
+	while (1);
 }
 
 void
