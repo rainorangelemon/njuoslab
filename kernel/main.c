@@ -17,7 +17,7 @@ extern pde_t entry_pgdir[];
 void init_cond();
 void init_segment();
 void init_mem();
-void *loader();
+/*void *loader();*/
 
 int kernel_main()
 {
