@@ -1,5 +1,4 @@
-
-#include "elf.h"	//定义的in_byte 等函数
+#include "elf.h"
 #include "types.h"
 #include "cpupa.h"
 #include "cpu.h"
@@ -17,7 +16,7 @@ uint32_t get_ucr3();
 #define NR_PDE 1024
 #define ELF_OFFSET_IN_DISK 10*1024*1024
 
-//用户页目录表，在其他地方定义的
+//dir for users
 extern PDE updir[NR_PDE];
 
 void readseg(unsigned char *, int, int);
@@ -38,8 +37,8 @@ extern struct PCB *current;
 
 void loader()
 {
-	int pcb_index = pcb_alloc();  
-	int pid = pid_alloc();      
+	int pcb_index = get_pcb();  
+	int pid = get_pid();      
 
 	printk("game's pcb_index = %d 	game's pid = %d\n",pcb_index, pid);
 	pcb_new(pid, 0, pcb_index);  
@@ -62,15 +61,15 @@ void loader()
 	{
 		if(ph->type == PT_LOAD) {
 			uint32_t va = ph->vaddr;
-			int num = 0;				//已经加载的总字节数
+			int num = 0;				//the bytes that have already been loaded
 			for(; va < ph->vaddr + ph->memsz; va +=PGSIZE)
 			{
-				int off = PGOFF(va);	//页内偏移量
-				va = PTE_ADDR(va);		//页  首地址
-				uint32_t addr = mm_malloc(va, PGSIZE);//按页首地址对齐分配物理页
-				memset(sec_buf, 0, PGSIZE);		//初始化磁盘缓冲区
-				int rest = PGSIZE - off;		//按页对齐划分，实际占用的页大小
-				if(ph->filesz - num < rest)	//剩余可加载的内容不足时
+				int off = PGOFF(va);	//offset in page
+				va = PTE_ADDR(va);		//first address for page
+				uint32_t addr = mm_malloc(va, PGSIZE);//allocating the pysical page concerning the va
+				memset(sec_buf, 0, PGSIZE);		//initial the section of disk
+				int rest = PGSIZE - off;		//dividing the page size of actual space
+				if(ph->filesz - num < rest)	//if the no rest information exists
 					rest = ph->filesz - num;
 				if(rest != 0)
 				//	readseg((void*)(sec_buf + off), rest, 200*512 + ph->p_offset + num);
@@ -81,24 +80,24 @@ void loader()
 		}
 	}
 /**********************************************/
-//用户正常执行的栈
+//stack for user program
 	for(int i = KOFFSET - STACK_SIZE; i < KOFFSET; i += PGSIZE)
 		mm_malloc(i, PGSIZE);
 
-//做显存映射
+//video map
 	create_video_mapping();
 
 /**********************************************/
-//切换cr3为用户页目录表的首地址
+//let cr3 br the first address of user's pgdir
 	PDE *pdir = (PDE*)PADDR(updir);
 	CR3 cr3;
 	cr3.val = 0;
 	cr3.page_directory_base = ((uint32_t)pdir) >> 12;
 	pcb_cr3write(pcb_index, cr3.val);
-//	write_cr3(pcb_table[pcb_index].cr3);
+
 /**********************************************/
 
-//设置TrapFrame
+//Set TrapFrame
 	uint32_t eip = elf->entry;
 	uint32_t cs = SELECTOR_USER(SEG_USER_CODE);
 	uint32_t ss = SELECTOR_USER(SEG_USER_DATA);
@@ -114,7 +113,7 @@ void loader()
 	tf->ds = ds;
 	tf->es = es;
 	pcb_table[pcb_index].tf = tf;
-	pcb_ready(pcb_index);
+	process_ready(pcb_index);
 	
 	return;
 }

@@ -196,79 +196,6 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 	}
 }
 
-//
-// Map [va, va+size) of virtual address space to physical [pa, pa+size)
-// in the page table rooted at pgdir.  Size is a multiple of PGSIZE, and
-// va and pa are both page-aligned.
-// Use permission bits perm|PTE_P for the entries.
-//
-// This function is only intended to set up the ``static'' mappings
-// above UTOP. As such, it should *not* change the pp_ref field on the
-// mapped pages.
-//
-// Hint: the TA solution uses pgdir_walk
-
-//static void
-//boot_map_region(pde_t *pgdir, uintptr_t va, unsigned long size, physaddr_t pa, int perm)
-//{
-	// Fill this function in
-//}
-
-
-//
-// Map the physical page 'pp' at virtual address 'va'.
-// The permissions (the low 12 bits) of the page table entry
-// should be set to 'perm|PTE_P'.
-//
-// Requirements
-//   - If there is already a page mapped at 'va', it should be page_remove()d.
-//   - If necessary, on demand, a page table should be allocated and inserted
-//     into 'pgdir'.
-//   - pp->pp_ref should be incremented if the insertion succeeds.
-//   - The TLB must be invalidated if a page was formerly present at 'va'.
-//
-// Corner-case hint: Make sure to consider what happens when the same
-// pp is re-inserted at the same virtual address in the same pgdir.
-// However, try not to distinguish this case in your code, as this
-// frequently leads to subtle bugs; there's an elegant way to handle
-// everything in one code path.
-//
-// RETURNS:
-//   0 on success
-//   -E_NO_MEM, if page table couldn't be allocated
-//
-// Hint: The TA solution is implemented using pgdir_walk, page_remove,
-// and page2pa.
-//
-int
-page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
-{
-	// Fill this function in
-/*printk("pgdir %x\n", pgdir);
-printk("va %x\n", va);
-printk("perm %x\n", perm);
-	physaddr_t physaddr= page2pa(pp);
-
-printk("physaddr %x\n", physaddr);
-	pte_t *pte = pgdir_walk(pgdir, va, 0);
-
-printk("pte_t %x\n", pte);
-while(1);
-	if(pte != NULL)
-	{
-		tlb_invalidate(pgdir, va);
-		page_remove(pgdir, va);
-	}
-	pte_t *pte_new = pgdir_walk(pgdir, va, 1);
-	if(pte_new == NULL)
-		return -E_NO_MEM;
-	else
-	{
-		*pte_new = (physaddr << PGSHIFT) + (perm|PTE_P);
-	}*/
-	return 0;
-}
-
 uint32_t mm_malloc(uint32_t va, int len)
 {
 	//用户页目录表在别处定义，这里通过函数去获取页目录表首地址
@@ -391,7 +318,6 @@ void release()
 	
 	CR3 cr3;
 	cr3.val = current->cr3;
-//	cr3.page_directory_base = page2pa(pgdir) >> PGSHIFT;	//!!!
 
 
 	uint32_t paddr = cr3.page_directory_base << PGSHIFT;

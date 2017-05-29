@@ -72,11 +72,7 @@ $(BOOT): $(BOOT_O)
 
 $(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.[cS]
 	@mkdir -p $(OBJ_BOOT_DIR)
-	$(CC) $(CFLAGS) -Os -I . $< -o $@
-
-#$(OBJ_BOOT_DIR)/%.o: $(BOOT_DIR)/%.c
-#	@mkdir -p $(OBJ_BOOT_DIR)
-#	$(CC) $(CFLAGS) -Os -I ./boot/inc $< -o $@
+	$(CC) $(CFLAGS) -Os -I ./boot/inc $< -o $@
 
 $(PROGRAM): $(KERNEL) $(GAME)
 	cat $(KERNEL) $(GAME) > $(PROGRAM)
@@ -92,7 +88,7 @@ $(KERNEL): $(KERNEL_O) $(LIB_O)
 
 $(OBJ_KERNEL_DIR)/%.o: $(KERNEL_DIR)/%.[cS]
 	mkdir -p $(OBJ_DIR)/$(dir $<)
-	$(CC) $(CFLAGS) -I ./kernel -I ./kernel/include -I ./lib $< -o $@
+	$(CC) $(CFLAGS) -I ./kernel -I ./kernel/inc -I ./lib $< -o $@
 
 $(GAME): $(GAME_LD_SCRIPT)
 $(GAME): $(GAME_O) $(LIB_O)

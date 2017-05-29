@@ -1,7 +1,7 @@
 # 中断和异常处理函数的入口
 # 中断处理函数会在IDT中为相应的中断/异常设置处理程序
 # 中断/异常的行为参见i386手册
-#include "include/mmupa.h"
+#include "mmupa.h"
 
 #----|-----entry------|-errorcode-|-----id-----|---handler---|
 .globl vec0; 	vec0: 	pushl $0;  pushl $0; 	jmp asm_do_irq

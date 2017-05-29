@@ -84,12 +84,6 @@ void init_idt() {
 	set_intr(idt + 32 + 1, SEG_KERNEL_CODE, (uint32_t)irq1, DPL_KERNEL);
 	set_intr(idt + 32 + 14, SEG_KERNEL_CODE, (uint32_t)irq14, DPL_KERNEL);
 
-	/* 写入IDT,请自行根据i386手册完成save_idt函数,
-	 * x86.h提供了相关内联汇编的支持
-	 * 然后将hlt()删除
-	 * 
-	 * */
-	//hlt();
 	save_idt(idt, sizeof(idt));
 }
 

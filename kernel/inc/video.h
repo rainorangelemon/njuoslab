@@ -1,8 +1,8 @@
 #ifndef __VIDEO_H__
 #define __VIDEO_H__
 
-#include "include/types.h"
-#include "include/assert.h"
+#include "types.h"
+#include "assert.h"
 
 #define SCR_WIDTH  320
 #define SCR_HEIGHT 200

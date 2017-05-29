@@ -45,9 +45,9 @@ void init_cond()
 
 	pcb_init();
 	
-//为idle分配pcb	
-	int pcb_index = pcb_alloc();
-	int pid = pid_alloc();
+//get pcb for init process
+	int pcb_index = get_pcb();
+	int pid = get_pid();
 	pcb_new(pid, 0, pcb_index);
 	current = &pcb_table[pcb_index];//!!!
 

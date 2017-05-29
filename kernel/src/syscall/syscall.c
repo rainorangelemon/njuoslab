@@ -6,8 +6,7 @@
 #include "pcb_struct.h"
 #include "semaphore.h"
 
-//#include "include/types.h"
-
+int getpid();
 void serial_printc(char ch);
 void *memcpy(void *dst, const void *src, size_t n);
 void *memset(void *v, int c, size_t n);
@@ -15,18 +14,18 @@ int handle_keys();
 
 #define KEYCODE 0
 #define VMEMORY 1
-#define SERIAL	2
-#define FORK 	3
-#define SLEEP 	4
-#define EXIT 	5
-#define THREAD	6
-#define SEM_OPEN	7
-#define SEM_WAIT	8
-#define SEM_POST	9
-#define SEM_CLOSE	10
-#define Write       16
-#define Time        17
-#define Getpid      18
+#define WRITE   2
+#define TIME    3
+#define GETPID  4
+#define FORK 	5
+#define SLEEP 	6
+#define EXIT 	7
+#define THREAD	8
+#define SEM_INIT	9
+#define SEM_WAIT	10
+#define SEM_POST	11
+#define SEM_DESTROY	12
+#define SEM_TRYWAIT	13
 
 int fs_write(int fd, void *buf, int len){
 	int ret=-1;
@@ -40,44 +39,39 @@ int fs_write(int fd, void *buf, int len){
 	return ret;
 }
 
-extern uint32_t code;
 extern uint32_t time_tick;
 extern struct PCB* current;
 void do_syscall(struct TrapFrame *tf) {
 	switch(tf->eax) {
-		case KEYCODE:
+		case KEYCODE: //get keyboard code
 			tf->eax=handle_keys();
 			break;
-		case Write:
+		case WRITE: //mostly used for printf
 			tf->eax = fs_write(tf->ebx,(void*)tf->ecx,tf->edx);
 			break;
-		case VMEMORY: //绘制显存
+		case VMEMORY: //draw the screen
 			memcpy(VMEM_ADDR, (void *)tf->ebx, SCR_SIZE);
 			break;
-		case SERIAL: //串口输出
-			serial_printc((char)tf->ebx);
-			break;
-		case Time:
+		case TIME: //get the time_tick
 			tf->eax=time_tick;
 			break;
-		case FORK:	//fork			
-	//		tf->eax = fork();	
-			fork();
-			break;
 		case SLEEP: //sleep
-			sleep(tf->ebx);
+			process_sleep(tf->ebx);
+			break;
+		case FORK:
+			process_fork();
 			break;
 		case EXIT:
-			Exit();
+			process_exit();
 			break;
-		case Getpid:
-			tf->eax=current->pid;
+		case GETPID:
+			tf->eax=getpid();
 			break;
 		case THREAD:
 			create_thread((uint32_t *)tf->ebx);
 			break;
-		case SEM_OPEN:
-			sem_open((sem_t *)tf->ebx, (int)tf->ecx, (bool)tf->edx);
+		case SEM_INIT:
+			sem_init((sem_t *)tf->ebx, (int)tf->ecx, (bool)tf->edx);
 			break;
 		case SEM_WAIT:
 			sem_wait((sem_t *)tf->ebx);
@@ -85,8 +79,11 @@ void do_syscall(struct TrapFrame *tf) {
 		case SEM_POST:
 			sem_post((sem_t *)tf->ebx);
 			break;
-		case SEM_CLOSE:
-			sem_close((sem_t *)tf->ebx);
+		case SEM_DESTROY:
+			sem_destroy((sem_t *)tf->ebx);
+			break;
+		case SEM_TRYWAIT:
+			tf->eax=sem_trywait((sem_t *)tf->ebx);
 			break;
 
 		default: printk("Unhandled system call: id = %d", tf->eax);

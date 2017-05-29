@@ -1,8 +1,8 @@
 #ifndef JOS_INC_X86_H
 #define JOS_INC_X86_H
 
-#include "include/types.h"
-#include "include/mmu.h"
+#include "types.h"
+#include "mmu.h"
 
 #define NR_IRQ 256
 

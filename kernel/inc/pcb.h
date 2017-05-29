@@ -1,7 +1,7 @@
 #ifndef __PCB_H__
 #define __PCB_H__
 
-#include "include/mmu.h"
+#include "mmu.h"
 /*#define KSTACK_SIZE 4096
 struct PCB { 
 	struct TrapFrame *tf;
@@ -16,18 +16,18 @@ struct PCB {
 	int pcb_index;
 };*/
 
-int pid_alloc();
+int get_pid();
 void pcb_init();
-int pcb_alloc();
+int get_pcb();
 void pcb_new(int pid, int ppid, int pcb_index);
-void pcb_running(int pcb_index);
-void pcb_ready(int pcb_index);
+void process_run(int pcb_index);
+void process_ready(int pcb_index);
 void wakeup();
-void sleep(int time);
-void fork();
+void process_sleep(int time);
+void process_fork();
 void pcb_cr3write(int, uint32_t);
 void copy(int);
-void Exit();
+void process_exit();
 void create_thread(uint32_t *func_addr);
 void thread_copy(int);
 #endif

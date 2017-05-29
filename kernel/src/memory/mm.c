@@ -17,16 +17,6 @@ uint32_t get_ucr3() { return ucr3.val; }
 //inline PDE* get_kpdir();
 PDE* get_kpdir();
 
-uint32_t brk = 0;
-
-/* The brk() system call handler. */
-void mm_brk(uint32_t new_brk) {
-	if(new_brk > brk) {
-		mm_malloc(brk, new_brk - brk);
-	}
-	brk = new_brk;
-}
-
 void init_mm() {
 	PDE *kpdir = get_kpdir();
 
