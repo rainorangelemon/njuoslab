@@ -1,6 +1,6 @@
-#include "include/x86.h"
-#include "include/assert.h"
-#include "include/timer.h"
+#include "x86.h"
+#include "assert.h"
+#include "timer.h"
 
 /* 8253输入频率为1.193182MHz */
 #define TIMER_PORT 0x40

@@ -1,7 +1,7 @@
-#include "include/x86.h"
-#include "include/device/scan_code.h"
-#include "include/stdio.h"
-#include "include/cpupa.h"
+#include "x86.h"
+#include "device/scan_code.h"
+#include "stdio.h"
+#include "cpupa.h"
 
 #define NR_KEYS 10
 

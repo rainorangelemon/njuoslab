@@ -1,5 +1,5 @@
-#include "include/mmupa.h"
-#include "include/memory.h"
+#include "mmupa.h"
+#include "memory.h"
 #define VMEM_ADDR 0xa0000
 #define SCR_SIZE (320 * 200)
 

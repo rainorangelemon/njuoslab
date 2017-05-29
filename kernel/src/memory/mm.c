@@ -1,6 +1,6 @@
-#include "include/mmupa.h"
-#include "include/memory.h"
-#include "include/cpu.h"
+#include "mmupa.h"
+#include "memory.h"
+#include "cpu.h"
 
 void *memset(void *dst, int c, size_t len);
 void *memcpy(void *dst, const void *src, size_t n);

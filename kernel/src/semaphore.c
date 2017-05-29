@@ -1,4 +1,4 @@
-#include "include/types.h"
+#include "types.h"
 #include "mysemaphore.h"
 #include "pcb_struct.h"
 

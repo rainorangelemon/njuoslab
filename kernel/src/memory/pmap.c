@@ -1,11 +1,11 @@
-#include "include/memlayout.h"
-#include "include/x86.h"
-#include "include/pmap.h"
-#include "include/types.h"
-#include "include/assert.h"
-#include "include/pcb.h"
+#include "memlayout.h"
+#include "x86.h"
+#include "pmap.h"
+#include "types.h"
+#include "assert.h"
+#include "pcb.h"
 #include "pcb_struct.h"
-#include "include/cpu.h"
+#include "cpu.h"
 
 #define NR_PDE 	1024
 #define NR_PTE  1024

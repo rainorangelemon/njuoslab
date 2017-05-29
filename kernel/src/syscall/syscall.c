@@ -1,10 +1,10 @@
-#include "include/mmu.h"
-#include "include/irq.h"
-#include "include/video.h"
-#include "include/x86.h"
-#include "include/pcb.h"
+#include "mmu.h"
+#include "irq.h"
+#include "video.h"
+#include "x86.h"
+#include "pcb.h"
 #include "pcb_struct.h"
-#include "include/semaphore.h"
+#include "semaphore.h"
 
 //#include "include/types.h"
 

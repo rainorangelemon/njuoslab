@@ -1,7 +1,7 @@
-#include "include/x86.h"
-#include "include/stdio.h"
-#include "include/assert.h"
-#include "include/pcb.h"
+#include "x86.h"
+#include "stdio.h"
+#include "assert.h"
+#include "pcb.h"
 #include "pcb_struct.h"
 
 void do_syscall(struct TrapFrame *tf);

@@ -1,22 +1,21 @@
-#include <elf.h>			//使用标准结构体的定义
-#include "include/elf.h"	//定义的in_byte 等函数
-#include "include/types.h"
-#include "include/cpupa.h"
-#include "include/cpu.h"
-#include "include/memory.h"
-#include "include/mmu.h"
-#include "include/pmap.h"
-#include "include/pcb.h"
-#include "include/fcb.h"
+
+#include "elf.h"	//定义的in_byte 等函数
+#include "types.h"
+#include "cpupa.h"
+#include "cpu.h"
+#include "memory.h"
+#include "mmu.h"
+#include "pmap.h"
+#include "pcb.h"
 #include "pcb_struct.h"
-#include "include/x86.h"
+#include "x86.h"
 
 #define STACK_SIZE (4 * (1 << 20))
 uint32_t get_ucr3();
 #define SECTSIZE 512
 
 #define NR_PDE 1024
-#define ELF_OFFSET_IN_DISK 100*(1<<10)
+#define ELF_OFFSET_IN_DISK 10*1024*1024
 
 //用户页目录表，在其他地方定义的
 extern PDE updir[NR_PDE];
@@ -36,19 +35,9 @@ void create_video_mapping();
 #define MAX_PCB 100
 extern struct PCB pcb_table[MAX_PCB];
 extern struct PCB *current;
-//-------------------------------------
-extern struct map bitmap;
-extern struct dir direct;
 
 void loader()
 {
-	readseg((uint8_t *)&bitmap, 256*512, ELF_OFFSET_IN_DISK);
-	for(int k = 0; k < 80; k ++)
-		printk("%02x", bitmap.mask[k].byte);
-	printk("\n");
-
-	readseg((uint8_t *)&direct, 512, ELF_OFFSET_IN_DISK+sizeof(bitmap));
-
 	int pcb_index = pcb_alloc();  
 	int pid = pid_alloc();      
 
@@ -56,43 +45,36 @@ void loader()
 	pcb_new(pid, 0, pcb_index);  
 
 /*********************************************************************/
-	Elf32_Ehdr *elf;
-	Elf32_Phdr *ph, *eph;
+	struct ELFHeader *elf;
+	struct ProgramHeader *ph, *eph;
 	uint8_t buffer[4096];
 	uint8_t sec_buf[4096];
 
-	elf = (Elf32_Ehdr*)buffer;
+	elf = (struct ELFHeader*)buffer;
 	
-	struct iNode inode;
-	printk("%s\n", direct.entry[0].filename);
-	printk("%s\n", direct.entry[1].filename);
-	int inode_offset = direct.entry[0].inode_offset; 
-	readseg((uint8_t*)&inode, 512, ELF_OFFSET_IN_DISK + inode_offset * 512);
-	int elf_offset = inode.data_block_offset[0];
-	printk("elf_offset:0x%x\n",elf_offset);
-	readseg((uint8_t *)buffer, 4096, ELF_OFFSET_IN_DISK + elf_offset * 512);
+	readseg((uint8_t *)buffer, 4096, ELF_OFFSET_IN_DISK);
 	
-	ph = (Elf32_Phdr*)((uint8_t*)elf + elf->e_phoff);
-	eph = ph + elf->e_phnum;
+	ph = (struct ProgramHeader*)((uint8_t*)elf + elf->phoff);
+	eph = ph + elf->phnum;
 
 	page_init();
 	for(; ph < eph; ph++)
 	{
-		if(ph->p_type == PT_LOAD) {
-			uint32_t va = ph->p_vaddr;
+		if(ph->type == PT_LOAD) {
+			uint32_t va = ph->vaddr;
 			int num = 0;				//已经加载的总字节数
-			for(; va < ph->p_vaddr + ph->p_memsz; va +=PGSIZE)
+			for(; va < ph->vaddr + ph->memsz; va +=PGSIZE)
 			{
 				int off = PGOFF(va);	//页内偏移量
 				va = PTE_ADDR(va);		//页  首地址
 				uint32_t addr = mm_malloc(va, PGSIZE);//按页首地址对齐分配物理页
 				memset(sec_buf, 0, PGSIZE);		//初始化磁盘缓冲区
 				int rest = PGSIZE - off;		//按页对齐划分，实际占用的页大小
-				if(ph->p_filesz - num < rest)	//剩余可加载的内容不足时
-					rest = ph->p_filesz - num;
+				if(ph->filesz - num < rest)	//剩余可加载的内容不足时
+					rest = ph->filesz - num;
 				if(rest != 0)
 				//	readseg((void*)(sec_buf + off), rest, 200*512 + ph->p_offset + num);
-				readseg((void *)(sec_buf + off), rest, ELF_OFFSET_IN_DISK + elf_offset * 512 + ph->p_offset + num);
+				readseg((void *)(sec_buf + off), rest, ELF_OFFSET_IN_DISK + ph->off + num);
 				memcpy((void*)addr, sec_buf, PGSIZE);
 				num += rest;
 			}
@@ -117,7 +99,7 @@ void loader()
 /**********************************************/
 
 //设置TrapFrame
-	uint32_t eip = elf->e_entry;
+	uint32_t eip = elf->entry;
 	uint32_t cs = SELECTOR_USER(SEG_USER_CODE);
 	uint32_t ss = SELECTOR_USER(SEG_USER_DATA);
 	uint32_t ds = ss;

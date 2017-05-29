@@ -1,8 +1,8 @@
-#include "include/types.h"
-#include "include/memory.h"
-#include "include/cpu.h"
-#include "include/cpupa.h"
-#include "include/mmupa.h"
+#include "types.h"
+#include "memory.h"
+#include "cpu.h"
+#include "cpupa.h"
+#include "mmupa.h"
 
 int printk(const char *fmt, ...);
 void *memset(void *dst, int c, size_t len);

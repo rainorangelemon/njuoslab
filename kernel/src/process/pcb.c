@@ -1,9 +1,9 @@
-#include "include/types.h"
-#include "include/mmu.h"
-#include "include/pcb.h"
+#include "types.h"
+#include "mmu.h"
+#include "pcb.h"
 #include "pcb_struct.h"
-#include "include/string.h"
-#include "include/cpupa.h"
+#include "string.h"
+#include "cpupa.h"
 #define MAX_PCB 100
 
 #define new 	0
